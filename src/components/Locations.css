@@ -1,0 +1,1025 @@
+/* Locations Container */
+.locations-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+.locations-container > * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.locations-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.locations-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.locations-container::-webkit-scrollbar-thumb {
+  background: rgba(52, 152, 219, 0.5);
+  border-radius: 10px;
+}
+
+.locations-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.locations-header h1 {
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.locations-subtitle {
+  font-size: 1.1rem;
+  color: #7f8c8d;
+}
+
+/* GTA Map */
+.no-selection .locations-map {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 800px;
+  text-align: center;
+}
+
+.gta-map-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 2px solid #e0e0e0;
+  transition: transform 0.3s ease;
+}
+
+.gta-map-image:hover {
+  transform: scale(1.02);
+}
+
+/* Location Content Layout */
+.locations-content {
+  display: flex;
+  gap: 2rem;
+  align-items: start;
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 700px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(52, 152, 219, 0.5) rgba(0, 0, 0, 0.1);
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.locations-content::-webkit-scrollbar {
+  height: 6px;
+}
+
+.locations-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.locations-content::-webkit-scrollbar-thumb {
+  background: rgba(52, 152, 219, 0.5);
+  border-radius: 10px;
+}
+
+/* City List Container */
+.city-list-container {
+  flex: 0 0 280px;
+  position: sticky;
+  top: 2rem;
+  max-height: 350px;
+  overflow-y: auto;
+  background: #3498db;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  align-self: flex-start;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.5) rgba(0, 0, 0, 0.1);
+}
+
+.city-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.city-list-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+}
+
+.city-list-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
+}
+
+.city-list-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.city-list-container h2 {
+  font-size: 1.3rem;
+  color: white;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  text-align: left;
+}
+
+.city-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.city-item {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-left: 3px solid transparent;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  color: white;
+  width: 100%;
+}
+
+.city-item:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-left-color: white;
+}
+
+.city-item.selected {
+  background: rgba(255, 255, 255, 0.25);
+  border-left-color: white;
+}
+
+.city-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: white;
+}
+
+.city-price {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 0;
+}
+
+.city-item.selected .city-name {
+  color: white;
+  font-weight: 700;
+}
+
+.location-card.selected .location-price {
+  color: white;
+}
+
+.location-avg-label {
+  display: none;
+}
+
+/* Location Details (keep for backward compatibility) */
+.location-details {
+  flex: 1;
+  min-width: 0;
+  background: #e67e22;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* City Details */
+.city-details {
+  flex: 1;
+  min-width: 0;
+  background: #e67e22;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.city-info {
+  padding: 2rem;
+  text-align: center;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.city-info p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: white;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.detail-header h2 {
+  font-size: 2rem;
+  color: white;
+  margin: 0;
+}
+
+.region-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Detail Sections */
+.detail-section {
+  margin-bottom: 2rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.detail-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.3rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e8edf2;
+}
+
+.detail-section h3 svg {
+  width: 24px;
+  height: 24px;
+  color: #e67e22;
+}
+
+/* Price Grid */
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.price-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0;
+}
+
+.price-label {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.price-value {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+/* Tax Info */
+.tax-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tax-rate {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+}
+
+.tax-label {
+  font-size: 0.95rem;
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+.tax-value {
+  font-size: 1.5rem;
+  color: #e74c3c;
+  font-weight: 700;
+}
+
+.tax-example {
+  padding: 0;
+  margin-top: 0.5rem;
+}
+
+.tax-description {
+  color: #7f8c8d;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.tax-calc {
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+/* Data Unavailable Message */
+.data-unavailable {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe8a1 100%);
+  border-left: 4px solid #ffc107;
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.data-unavailable p {
+  margin: 0.5rem 0;
+  color: #856404;
+  font-weight: 500;
+}
+
+.data-unavailable .small-text {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #856404;
+  opacity: 0.8;
+}
+
+.tax-calc strong {
+  color: #e74c3c;
+  font-size: 1.1rem;
+}
+
+/* Loan Programs */
+.loan-programs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.loan-program-card {
+  background: white;
+  border-radius: 6px;
+  padding: 1.25rem;
+  border-left: 3px solid #27ae60;
+}
+
+.program-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.program-header h4 {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.program-type {
+  background: #27ae60;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.program-description {
+  color: #7f8c8d;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.program-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.program-eligibility {
+  color: #2c3e50;
+  padding: 0.75rem;
+  background: #e8f8f5;
+  border-radius: 6px;
+}
+
+.program-benefits {
+  color: #2c3e50;
+}
+
+.program-benefits ul {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.5rem;
+}
+
+.program-benefits li {
+  margin: 0.5rem 0;
+  line-height: 1.5;
+}
+
+.program-link {
+  display: inline-block;
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.program-link:hover {
+  color: #2980b9;
+}
+
+/* HOA Fees */
+.hoa-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.hoa-range {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+}
+
+.hoa-label {
+  font-size: 0.95rem;
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+.hoa-value {
+  font-size: 1.2rem;
+  color: #9b59b6;
+  font-weight: 700;
+}
+
+.hoa-description {
+  color: #7f8c8d;
+  padding: 0;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+.hoa-common {
+  color: #2c3e50;
+  padding: 0;
+  font-size: 0.95rem;
+}
+
+/* Insurance Info */
+.insurance-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.insurance-item {
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
+  border-left: 3px solid #3498db;
+}
+
+.insurance-item h4 {
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.insurance-range,
+.insurance-annual {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  margin: 0.5rem 0;
+}
+
+.insurance-range {
+  font-weight: 600;
+  color: #e67e22;
+}
+
+.insurance-annual {
+  color: #7f8c8d;
+}
+
+.flood-insurance {
+  border-left-color: #3498db;
+}
+
+.insurance-required {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.required-badge {
+  background: #e74c3c;
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.flood-zone {
+  background: #3498db;
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.other-coverage {
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
+  border-left: 3px solid #95a5a6;
+}
+
+.other-coverage h4 {
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.coverage-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: white;
+  border-radius: 4px;
+}
+
+.coverage-item:last-child {
+  margin-bottom: 0;
+}
+
+.coverage-type {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.coverage-price {
+  color: #e67e22;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.coverage-description {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Additional Info */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.insight-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0;
+}
+
+.insight-label {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.insight-value {
+  font-size: 1.3rem;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+.insight-value.trend-hot-market {
+  color: #e74c3c;
+}
+
+.insight-value.trend-rising {
+  color: #27ae60;
+}
+
+.insight-value.trend-stable {
+  color: #3498db;
+}
+
+.insight-value.trend-cooling {
+  color: #f39c12;
+}
+
+.insight-value.trend-declining {
+  color: #95a5a6;
+}
+
+/* Demographics */
+.demographics {
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.demographics h4 {
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.demo-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.demo-label {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+.demo-value {
+  font-size: 1.2rem;
+  color: #2c3e50;
+  font-weight: 700;
+}
+
+/* Data Source */
+.data-source {
+  margin-top: 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  border-top: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.data-source h4 {
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+}
+
+.source-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.source-badge {
+  background: white;
+  color: #7f8c8d;
+  padding: 0.35rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  border: 1px solid #ddd;
+}
+
+.last-updated {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  font-style: italic;
+  margin: 0;
+}
+
+/* No Selection State */
+.no-selection {
+  flex: 1;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.no-selection svg {
+  width: 64px;
+  height: 64px;
+  color: #bdc3c7;
+  margin-bottom: 1rem;
+}
+
+.no-selection h3 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.no-selection p {
+  color: #7f8c8d;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.gta-map-image {
+  max-width: 100%;
+  width: 600px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+}
+
+/* Loading & Error States */
+.loading-spinner {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #3498db;
+}
+
+.error-message {
+  text-align: center;
+  padding: 2rem;
+  color: #e74c3c;
+  background: #ffe8e6;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .locations-content {
+    grid-template-columns: 1fr;
+  }
+
+  .location-selector {
+    position: static;
+    max-height: none;
+  }
+
+  .location-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .locations-container {
+    padding: 1rem;
+    overflow-x: hidden;
+  }
+
+  .locations-content {
+    max-height: none;
+    flex-direction: column;
+    overflow-x: hidden;
+    overflow-y: visible;
+    gap: 1.5rem;
+  }
+
+  .city-list-container {
+    flex: 1 1 auto;
+    position: static;
+    max-height: 350px;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .city-details {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.5) rgba(0, 0, 0, 0.1);
+  }
+
+  .city-details::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .city-details::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+
+  .city-details::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+  }
+
+  .locations-header h1 {
+    font-size: 2rem;
+  }
+
+  .detail-section {
+    min-width: 320px;
+  }
+
+  .price-grid,
+  .insights-grid,
+  .demo-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 1rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .price-grid > *,
+  .insights-grid > *,
+  .demo-grid > * {
+    flex: 0 0 auto;
+    min-width: 200px;
+  }
+
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .loan-programs,
+  .hoa-info,
+  .tax-info {
+    min-width: 300px;
+  }
+}
+
+/* ========================================
+   LANDSCAPE ORIENTATION SPECIFIC STYLES
+   ======================================== */
+
+/* Landscape mode for tablets and laptops */
+@media (orientation: landscape) and (max-height: 700px) {
+  .locations-container {
+    padding: 1rem 2rem;
+    min-height: auto;
+  }
+
+  .locations-header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .locations-subtitle {
+    font-size: 1rem;
+  }
+
+  .locations-content {
+    max-height: 60vh;
+    gap: 1rem;
+  }
+
+  .city-list-container {
+    max-height: 55vh;
+  }
+
+  .city-item {
+    padding: 0.6rem 1rem;
+  }
+
+  .city-details {
+    padding: 1rem;
+  }
+
+  .detail-section {
+    padding: 1rem;
+  }
+
+  .detail-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .price-item h4,
+  .insight-item h4,
+  .demo-item h4 {
+    font-size: 0.9rem;
+  }
+}
+
+/* Landscape mode for very wide screens */
+@media (orientation: landscape) and (min-width: 1400px) and (max-height: 900px) {
+  .locations-container {
+    max-width: 1800px;
+    margin: 0 auto;
+  }
+
+  .locations-content {
+    max-height: 70vh;
+    gap: 2rem;
+  }
+
+  .city-list-container {
+    max-width: 350px;
+  }
+
+  .city-details {
+    flex: 1;
+  }
+}
+
+/* Ultra-wide landscape screens */
+@media (orientation: landscape) and (min-width: 1920px) {
+  .locations-container {
+    max-width: 2400px;
+    padding: 2rem 4rem;
+  }
+
+  .locations-content {
+    max-height: 75vh;
+  }
+}
+
+/* Landscape mobile devices */
+@media (orientation: landscape) and (max-width: 900px) and (max-height: 500px) {
+  .locations-container {
+    padding: 0.5rem 1rem;
+  }
+
+  .locations-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .locations-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .locations-content {
+    max-height: 55vh;
+    gap: 0.8rem;
+    padding: 0.8rem;
+  }
+
+  .city-list-container {
+    max-height: 50vh;
+  }
+
+  .city-item {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .city-details {
+    padding: 0.8rem;
+  }
+
+  .detail-section {
+    padding: 0.8rem;
+  }
+
+  .detail-section h3 {
+    font-size: 1rem;
+  }
+
+  .price-item h4,
+  .insight-item h4,
+  .demo-item h4 {
+    font-size: 0.85rem;
+  }
+
+  .price-item p,
+  .insight-item p,
+  .demo-item p {
+    font-size: 0.8rem;
+  }
+}

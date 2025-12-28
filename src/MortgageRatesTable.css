@@ -1,0 +1,561 @@
+/* Mortgage Rates Table Container */
+.mortgage-rates-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+/* Header Section */
+.rates-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: transparent;
+  padding: 2rem;
+  border-radius: 12px;
+  color: black;
+  box-shadow: none;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.rates-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: black !important;
+}
+
+.rates-subtitle {
+  font-size: 1.1rem;
+  opacity: 0.95;
+  margin: 0;
+  font-weight: 400;
+  color: black;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.refresh-button {
+  background: black;
+  border: 2px solid black;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.refresh-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.last-updated {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  color: black;
+}
+
+/* Key Rates Summary Cards */
+.key-rates-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.key-rate-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+}
+
+.key-rate-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.key-rate-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.key-rate-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.prime-rate {
+  color: #e74c3c;
+}
+
+.variable-rate {
+  color: #f39c12;
+}
+
+.insured-rate {
+  color: #27ae60;
+}
+
+.uninsured-rate {
+  color: #3498db;
+}
+
+/* Rates Table */
+.rates-table-wrapper {
+  overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.rates-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+}
+
+.rates-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.rates-table th {
+  padding: 1.25rem 1rem;
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rates-table th.row-header {
+  text-align: left;
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* Column Group Headers */
+.rates-table .bank-rates-group {
+  background: #2563eb;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 1.5rem 1rem;
+  border-right: 3px solid white;
+}
+
+.rates-table .our-rates-group {
+  background: #ea580c;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 1.5rem 1rem;
+}
+
+/* Subheaders */
+.rates-table .bank-rates-subheader {
+  background: #3b82f6;
+  border-right: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.rates-table .our-rates-subheader {
+  background: #f97316;
+  border-left: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.rates-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.rates-table tbody tr:hover td:nth-child(2),
+.rates-table tbody tr:hover td:nth-child(3),
+.rates-table tbody tr:hover td:nth-child(4),
+.rates-table tbody tr:hover td:nth-child(5) {
+  background-color: rgba(37, 99, 235, 0.15);
+}
+
+.rates-table tbody tr:hover td:nth-child(6),
+.rates-table tbody tr:hover td:nth-child(7),
+.rates-table tbody tr:hover td:nth-child(8),
+.rates-table tbody tr:hover td:nth-child(9) {
+  background-color: rgba(234, 88, 12, 0.15);
+}
+
+.rates-table tbody tr:hover td.row-header {
+  background-color: #e8eaf6;
+}
+
+.rates-table tbody tr:hover {
+  transform: scale(1.01);
+}
+
+.rates-table td {
+  padding: 1.25rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+  font-weight: 500;
+  color: #2c3e50;
+  white-space: nowrap;
+}
+
+/* Bank Rates Container - Blue Background */
+.rates-table td:nth-child(2),
+.rates-table td:nth-child(3),
+.rates-table td:nth-child(4),
+.rates-table td:nth-child(5) {
+  background-color: rgba(37, 99, 235, 0.08);
+  border-right: 1px solid rgba(37, 99, 235, 0.1);
+}
+
+/* Add stronger right border to last Bank Rate column */
+.rates-table td:nth-child(5) {
+  border-right: 3px solid rgba(37, 99, 235, 0.3);
+}
+
+/* Our Rates Container - Orange Background */
+.rates-table td:nth-child(6),
+.rates-table td:nth-child(7),
+.rates-table td:nth-child(8),
+.rates-table td:nth-child(9) {
+  background-color: rgba(234, 88, 12, 0.08);
+  border-left: 1px solid rgba(234, 88, 12, 0.1);
+}
+
+/* Add stronger left border to first Our Rate column */
+.rates-table td:nth-child(6) {
+  border-left: 3px solid rgba(234, 88, 12, 0.3);
+}
+
+.rates-table td.row-header {
+  text-align: left;
+  font-weight: 700;
+  background-color: #f8f9fa;
+  color: #667eea;
+  font-size: 1rem;
+}
+
+/* Bank Rate */
+.rates-table .rate-row td:nth-child(2) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Bank Avg Principal */
+.rates-table .rate-row td:nth-child(3) {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Bank Avg Interest */
+.rates-table .rate-row td:nth-child(4) {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Bank Total Payment */
+.rates-table .rate-row td:nth-child(5) {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #000000;
+}
+
+/* Our Rates */
+.rates-table .rate-row td:nth-child(6) {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Our Avg Principal */
+.rates-table .rate-row td:nth-child(7) {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Our Avg Interest */
+.rates-table .rate-row td:nth-child(8) {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+/* Our Total Payment */
+.rates-table .rate-row td:nth-child(9) {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #000000;
+}
+
+.rates-table .highlight-row td:nth-child(2),
+.rates-table .highlight-row td:nth-child(3),
+.rates-table .highlight-row td:nth-child(4),
+.rates-table .highlight-row td:nth-child(5) {
+  background-color: rgba(37, 99, 235, 0.2) !important;
+  font-weight: 700 !important;
+}
+
+.rates-table .highlight-row td:nth-child(6),
+.rates-table .highlight-row td:nth-child(7),
+.rates-table .highlight-row td:nth-child(8),
+.rates-table .highlight-row td:nth-child(9) {
+  background-color: rgba(234, 88, 12, 0.2) !important;
+  font-weight: 700 !important;
+}
+
+.rates-table .highlight-row td.row-header {
+  background-color: #e1e4f7 !important;
+  font-weight: 700 !important;
+}
+
+.rates-table tbody tr:nth-child(even) td.row-header {
+  background-color: #f0f1f3;
+}
+
+/* Savings Column Styling */
+.rates-table .savings-header {
+  background: white;
+  color: #2c3e50;
+  font-size: 1rem;
+  font-weight: 700;
+  border-left: 3px solid #e0e0e0;
+}
+
+.rates-table .savings-cell {
+  background-color: white !important;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #22c55e;
+  border-left: 3px solid #e0e0e0;
+}
+
+/* Information Cards */
+.rates-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #667eea;
+}
+
+.info-card h3 {
+  margin-top: 0;
+  color: #667eea;
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.info-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-card li {
+  padding: 0.5rem 0;
+  color: #555;
+  line-height: 1.6;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.info-card li::before {
+  content: '•';
+  color: #667eea;
+  font-weight: bold;
+  font-size: 1.2rem;
+  position: absolute;
+  left: 0;
+}
+
+.info-card strong {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+/* Data Source Footer */
+.data-source {
+  text-align: center;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  color: #666;
+  font-size: 0.9rem;
+  border: 1px solid #e0e0e0;
+}
+
+/* Loading and Error States */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  text-align: center;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  background-color: #fee;
+  border: 2px solid #fcc;
+  border-radius: 8px;
+  color: #c33;
+}
+
+.retry-button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.retry-button:hover {
+  background-color: #c0392b;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .rates-table {
+    font-size: 0.9rem;
+  }
+
+  .rates-table th,
+  .rates-table td {
+    padding: 1rem 0.75rem;
+  }
+
+  .key-rates-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .mortgage-rates-container {
+    padding: 1rem;
+  }
+
+  .rates-header {
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+
+  .rates-title {
+    font-size: 2rem;
+  }
+
+  .header-actions {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .key-rates-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .key-rate-value {
+    font-size: 1.75rem;
+  }
+
+  .rates-table {
+    font-size: 0.85rem;
+  }
+
+  .rates-table th,
+  .rates-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .rates-info {
+    grid-template-columns: 1fr;
+  }
+
+  .info-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .rates-title {
+    font-size: 1.5rem;
+  }
+
+  .rates-subtitle {
+    font-size: 1rem;
+  }
+
+  .rates-table {
+    font-size: 0.75rem;
+  }
+
+  .rates-table th,
+  .rates-table td {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .key-rate-value {
+    font-size: 1.5rem;
+  }
+}
