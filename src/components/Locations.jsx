@@ -7,8 +7,42 @@ function Locations() {
   const [locations, setLocations] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
   const [locationData, setLocationData] = useState(null);
+  const [selectedPropertyType, setSelectedPropertyType] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const propertyTypeOptions = [
+    { 
+      key: 'houses', 
+      label: 'Houses', 
+      description: 'Single-family homes',
+      icon: '🏠'
+    },
+    { 
+      key: 'condos', 
+      label: 'Condos & Townhouses', 
+      description: 'Condos and townhouses',
+      icon: '🏢'
+    },
+    { 
+      key: 'multiFamily', 
+      label: 'Multi-Family Properties', 
+      description: 'Duplexes, triplexes, apartment buildings',
+      icon: '🏘️'
+    },
+    { 
+      key: 'land', 
+      label: 'Land', 
+      description: 'Vacant lots you plan to build on',
+      icon: '🌳'
+    },
+    { 
+      key: 'commercial', 
+      label: 'Commercial Real Estate', 
+      description: 'Office buildings, retail spaces, warehouses',
+      icon: '🏭'
+    }
+  ];
 
   // Fetch all locations on mount
   useEffect(() => {
@@ -38,10 +72,12 @@ function Locations() {
     if (selectedCity === cityName) {
       setSelectedCity(null);
       setLocationData(null);
+      setSelectedPropertyType(null);
       return;
     }
 
     setSelectedCity(cityName);
+    setSelectedPropertyType(null);
     setLoading(true);
     setError(null);
 
@@ -141,40 +177,117 @@ function Locations() {
               </div>
             </div>
 
-            {/* Property Tax Section */}
-            <div className="detail-section">
-              <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
-                  <line x1="1" y1="10" x2="23" y2="10"/>
-                </svg>
-                Property Tax Rates
-              </h3>
-              <div className="tax-info">
-                {locationData.propertyTaxRate && locationData.propertyTaxRate.rate ? (
-                  <>
-                    <div className="tax-rate">
-                      <span className="tax-label">Tax Rate</span>
-                      <span className="tax-value">{locationData.propertyTaxRate.rate}%</span>
+            {/* Property Types Section */}
+            {locationData.propertyTypes && Object.keys(locationData.propertyTypes).length > 0 && (
+              <div className="detail-section">
+                <h3>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                  </svg>
+                  Property Types
+                </h3>
+                <p className="section-description">Select a property type to view detailed information</p>
+                <div className="property-types-grid">
+                  {propertyTypeOptions.map((option) => {
+                    const hasData = locationData.propertyTypes[option.key];
+                    return (
+                      <button
+                        key={option.key}
+                        className={`property-type-card ${selectedPropertyType === option.key ? 'selected' : ''} ${!hasData ? 'disabled' : ''}`}
+                        onClick={() => hasData && setSelectedPropertyType(selectedPropertyType === option.key ? null : option.key)}
+                        disabled={!hasData}
+                      >
+                        <span className="property-icon">{option.icon}</span>
+                        <h4>{option.label}</h4>
+                        <p>{option.description}</p>
+                        {!hasData && <span className="no-data-badge">No data available</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Property Type Details */}
+                {selectedPropertyType && locationData.propertyTypes[selectedPropertyType] && (
+                  <div className="property-type-details">
+                    <h4>{propertyTypeOptions.find(o => o.key === selectedPropertyType)?.label} in {locationData.locationName}</h4>
+                    <div className="property-details-grid">
+                      {locationData.propertyTypes[selectedPropertyType].averagePrice && (
+                        <div className="detail-item">
+                          <span className="detail-label">Average Price</span>
+                          <span className="detail-value">{formatCurrency(locationData.propertyTypes[selectedPropertyType].averagePrice)}</span>
+                        </div>
+                      )}
+                      {locationData.propertyTypes[selectedPropertyType].medianPrice && (
+                        <div className="detail-item">
+                          <span className="detail-label">Median Price</span>
+                          <span className="detail-value">{formatCurrency(locationData.propertyTypes[selectedPropertyType].medianPrice)}</span>
+                        </div>
+                      )}
+                      {locationData.propertyTypes[selectedPropertyType].priceRange && (
+                        <div className="detail-item">
+                          <span className="detail-label">Price Range</span>
+                          <span className="detail-value">
+                            {formatCurrency(locationData.propertyTypes[selectedPropertyType].priceRange.low)} - {formatCurrency(locationData.propertyTypes[selectedPropertyType].priceRange.high)}
+                          </span>
+                        </div>
+                      )}
+                      {locationData.propertyTypes[selectedPropertyType].averageDaysOnMarket && (
+                        <div className="detail-item">
+                          <span className="detail-label">Avg. Days on Market</span>
+                          <span className="detail-value">{locationData.propertyTypes[selectedPropertyType].averageDaysOnMarket} days</span>
+                        </div>
+                      )}
+                      {locationData.propertyTypes[selectedPropertyType].pricePerSqFt && (
+                        <div className="detail-item">
+                          <span className="detail-label">Price per Sq Ft</span>
+                          <span className="detail-value">{formatCurrency(locationData.propertyTypes[selectedPropertyType].pricePerSqFt)}</span>
+                        </div>
+                      )}
+                      {locationData.propertyTypes[selectedPropertyType].inventoryCount && (
+                        <div className="detail-item">
+                          <span className="detail-label">Available Listings</span>
+                          <span className="detail-value">{locationData.propertyTypes[selectedPropertyType].inventoryCount}</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="tax-example">
-                      <p className="tax-description">{locationData.propertyTaxRate.description}</p>
-                      <p className="tax-calc">
-                        For a home priced at {formatCurrency(locationData.propertyTaxRate.annualTaxExample.homePrice)}, 
-                        annual property tax: <strong>{formatCurrency(locationData.propertyTaxRate.annualTaxExample.taxAmount)}</strong>
+                    {locationData.propertyTypes[selectedPropertyType].lastUpdated && (
+                      <p className="data-updated">
+                        Last updated: {new Date(locationData.propertyTypes[selectedPropertyType].lastUpdated).toLocaleDateString()}
                       </p>
-                    </div>
-                  </>
-                ) : (
-                  <div className="data-unavailable">
-                    <p>⚠️ Unable to collect property tax data for this location</p>
-                    <p className="small-text">Property tax information not available from web sources. Please consult local municipal offices.</p>
+                    )}
                   </div>
                 )}
               </div>
-            </div>
+            )}
 
-
+            {/* Property Tax Section */}
+            {locationData.propertyTaxRate && locationData.propertyTaxRate.rate && (
+              <div className="detail-section">
+                <h3>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                  </svg>
+                  Property Tax Rates
+                </h3>
+                <div className="tax-info">
+                  <div className="tax-rate">
+                    <span className="tax-label">Tax Rate</span>
+                    <span className="tax-value">{locationData.propertyTaxRate.rate}%</span>
+                  </div>
+                  <div className="tax-example">
+                    <p className="tax-description">{locationData.propertyTaxRate.description}</p>
+                    <p className="tax-calc">
+                      For a home priced at {formatCurrency(locationData.propertyTaxRate.annualTaxExample.homePrice)}, 
+                      annual property tax: <strong>{formatCurrency(locationData.propertyTaxRate.annualTaxExample.taxAmount)}</strong>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Additional Information Section - Only show if we have real data */}
             {locationData.additionalInfo && (
@@ -219,23 +332,6 @@ function Locations() {
                 )}
               </div>
             )}
-
-            {/* Data Source Information */}
-            <div className="data-source">
-              <h4>Data Sources</h4>
-              <div className="source-list">
-                {locationData.dataSource.sources.map((source, index) => (
-                  <span key={index} className="source-badge">{source}</span>
-                ))}
-              </div>
-              <p className="last-updated">
-                Last Updated: {new Date(locationData.dataSource.lastUpdated).toLocaleDateString('en-CA', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
-            </div>
           </div>
         )}
 

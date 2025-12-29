@@ -1,5 +1,22 @@
 const mongoose = require('mongoose');
 
+const propertyTypeDataSchema = new mongoose.Schema({
+  averagePrice: Number,
+  medianPrice: Number,
+  priceRange: {
+    low: Number,
+    high: Number
+  },
+  averageDaysOnMarket: Number,
+  inventoryCount: Number,
+  pricePerSqFt: Number,
+  description: String,
+  lastUpdated: {
+    type: Date,
+    default: Date.now
+  }
+}, { _id: false });
+
 const locationDataSchema = new mongoose.Schema({
   locationName: {
     type: String,
@@ -28,10 +45,17 @@ const locationDataSchema = new mongoose.Schema({
       default: 'CAD'
     }
   },
+  propertyTypes: {
+    houses: propertyTypeDataSchema,
+    condos: propertyTypeDataSchema,
+    multiFamily: propertyTypeDataSchema,
+    land: propertyTypeDataSchema,
+    commercial: propertyTypeDataSchema
+  },
   propertyTaxRate: {
     rate: {
       type: Number,
-      required: false,  // Optional - may not be available from web data
+      required: false,
       default: null
     },
     annualTaxExample: {
@@ -40,72 +64,8 @@ const locationDataSchema = new mongoose.Schema({
     },
     description: String
   },
-  loanPrograms: [{
-    name: {
-      type: String,
-      required: true
-    },
-    type: {
-      type: String,
-      enum: ['First-time Homebuyer', 'Provincial Assistance', 'Federal Program', 'Regional Lending', 'Municipal Program'],
-      required: true
-    },
-    description: String,
-    eligibility: String,
-    benefits: [String],
-    link: String
-  }],
-  hoaFees: {
-    applicable: {
-      type: Boolean,
-      default: false
-    },
-    averageMonthly: {
-      low: Number,
-      high: Number
-    },
-    commonIn: [String],
-    description: String
-  },
-  insuranceEstimates: {
-    homeownersInsurance: {
-      monthlyLow: {
-        type: Number,
-        required: true
-      },
-      monthlyHigh: {
-        type: Number,
-        required: true
-      },
-      annualAverage: Number
-    },
-    floodInsurance: {
-      required: {
-        type: Boolean,
-        default: false
-      },
-      monthlyEstimate: Number,
-      floodZone: String
-    },
-    otherCoverage: [{
-      type: {
-        type: String
-      },
-      monthlyEstimate: Number,
-      description: String
-    }]
-  },
   additionalInfo: {
-    marketTrend: {
-      type: String,
-      enum: ['Rising', 'Stable', 'Declining', 'Hot Market', 'Cooling'],
-      default: 'Stable'
-    },
     averageDaysOnMarket: Number,
-    walkScore: Number,
-    transitScore: Number,
-    schoolRating: Number,
-    crimeIndex: String,
     demographics: {
       averageHouseholdIncome: Number,
       populationGrowth: String

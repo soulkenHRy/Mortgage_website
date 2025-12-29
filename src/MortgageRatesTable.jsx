@@ -294,20 +294,11 @@ const MortgageRatesTable = () => {
           <table className="rates-table">
           <thead>
             <tr>
-              <th className="row-header" rowSpan="2" style={{ background: '#000000', backgroundColor: '#000000', color: '#ffffff', border: '2px solid #ffffff' }}>Rate Type</th>
-              <th colSpan="4" className="bank-rates-group">Bank Rates</th>
-              <th colSpan="4" className="our-rates-group">Our Rates</th>
-              <th rowSpan="2" className="savings-header">Savings</th>
-            </tr>
-            <tr>
+              <th className="row-header" style={{ background: '#000000', backgroundColor: '#000000', color: '#ffffff', border: '2px solid #ffffff' }}>Rate Type</th>
               <th className="bank-rates-subheader">Bank Rate (per $100k CAD)</th>
               <th className="bank-rates-subheader">Avg Principal/mo</th>
               <th className="bank-rates-subheader">Avg Interest/mo</th>
               <th className="bank-rates-subheader">Total Payment/mo</th>
-              <th className="our-rates-subheader">Our Rates (per $100k CAD)</th>
-              <th className="our-rates-subheader">Avg Principal/mo</th>
-              <th className="our-rates-subheader">Avg Interest/mo</th>
-              <th className="our-rates-subheader">Total Payment/mo</th>
             </tr>
           </thead>
           <tbody>
@@ -317,11 +308,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.oneYear, 1).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.oneYear, 1).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.oneYear, 1).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.oneYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.oneYear), 1).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.oneYear), 1).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.oneYear), 1).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.oneYear, calculateOurRate(ratesData?.fixedRates?.oneYear), 1))}</td>
             </tr>
             <tr className="rate-row">
               <td className="row-header" style={{ backgroundColor: '#000000', color: '#ffffff' }}>2 Year Fixed</td>
@@ -329,11 +315,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.twoYear, 2).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.twoYear, 2).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.twoYear, 2).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.twoYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.twoYear), 2).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.twoYear), 2).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.twoYear), 2).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.twoYear, calculateOurRate(ratesData?.fixedRates?.twoYear), 2))}</td>
             </tr>
             <tr className="rate-row">
               <td className="row-header" style={{ backgroundColor: '#000000', color: '#ffffff' }}>3 Year Fixed</td>
@@ -341,11 +322,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.threeYear, 3).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.threeYear, 3).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.threeYear, 3).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.threeYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.threeYear), 3).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.threeYear), 3).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.threeYear), 3).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.threeYear, calculateOurRate(ratesData?.fixedRates?.threeYear), 3))}</td>
             </tr>
             <tr className="rate-row">
               <td className="row-header" style={{ backgroundColor: '#000000', color: '#ffffff' }}>4 Year Fixed</td>
@@ -353,11 +329,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.fourYear, 4).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.fourYear, 4).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.fourYear, 4).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.fourYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.fourYear), 4).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.fourYear), 4).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.fourYear), 4).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.fourYear, calculateOurRate(ratesData?.fixedRates?.fourYear), 4))}</td>
             </tr>
             <tr className="rate-row">
               <td className="row-header" style={{ backgroundColor: '#000000', color: '#ffffff' }}>5 Year Fixed</td>
@@ -365,11 +336,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.fiveYear, 5).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.fiveYear, 5).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.fiveYear, 5).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.fiveYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.fiveYear), 5).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.fiveYear), 5).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.fiveYear), 5).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.fiveYear, calculateOurRate(ratesData?.fixedRates?.fiveYear), 5))}</td>
             </tr>
             <tr className="rate-row">
               <td className="row-header" style={{ backgroundColor: '#000000', color: '#ffffff' }}>6 Year Fixed</td>
@@ -377,11 +343,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.sixYear, 6).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.sixYear, 6).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.sixYear, 6).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.sixYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.sixYear), 6).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.sixYear), 6).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.sixYear), 6).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.sixYear, calculateOurRate(ratesData?.fixedRates?.sixYear), 6))}</td>
             </tr>
             <tr className="rate-row">
               <td className="row-header" style={{ backgroundColor: '#000000', color: '#ffffff' }}>7 Year Fixed</td>
@@ -389,11 +350,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.sevenYear, 7).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.sevenYear, 7).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.sevenYear, 7).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.sevenYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.sevenYear), 7).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.sevenYear), 7).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.sevenYear), 7).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.sevenYear, calculateOurRate(ratesData?.fixedRates?.sevenYear), 7))}</td>
             </tr>
             <tr className="rate-row">
               <td className="row-header" style={{ backgroundColor: '#000000', color: '#ffffff' }}>8 Year Fixed</td>
@@ -401,11 +357,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.eightYear, 8).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.eightYear, 8).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.eightYear, 8).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.eightYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.eightYear), 8).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.eightYear), 8).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.eightYear), 8).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.eightYear, calculateOurRate(ratesData?.fixedRates?.eightYear), 8))}</td>
             </tr>
             <tr className="rate-row">
               <td className="row-header" style={{ backgroundColor: '#000000', color: '#ffffff' }}>9 Year Fixed</td>
@@ -413,11 +364,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.nineYear, 9).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.nineYear, 9).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.nineYear, 9).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.nineYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.nineYear), 9).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.nineYear), 9).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.nineYear), 9).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.nineYear, calculateOurRate(ratesData?.fixedRates?.nineYear), 9))}</td>
             </tr>
             <tr className="rate-row">
               <td className="row-header" style={{ backgroundColor: '#000000', color: '#ffffff' }}>10 Year Fixed</td>
@@ -425,11 +371,6 @@ const MortgageRatesTable = () => {
               <td data-label="Bank Principal">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.tenYear, 10).principal)}</td>
               <td data-label="Bank Interest">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.tenYear, 10).interest)}</td>
               <td data-label="Bank Total">{formatCurrency(calculatePaymentBreakdown(ratesData?.fixedRates?.tenYear, 10).total)}</td>
-              <td data-label="Our Rate">{formatRate(calculateOurRate(ratesData?.fixedRates?.tenYear))}</td>
-              <td data-label="Our Principal">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.tenYear), 10).principal)}</td>
-              <td data-label="Our Interest">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.tenYear), 10).interest)}</td>
-              <td data-label="Our Total">{formatCurrency(calculatePaymentBreakdown(calculateOurRate(ratesData?.fixedRates?.tenYear), 10).total)}</td>
-              <td className="savings-cell" data-label="💰 Savings">{formatCurrency(calculateSavings(ratesData?.fixedRates?.tenYear, calculateOurRate(ratesData?.fixedRates?.tenYear), 10))}</td>
             </tr>
           </tbody>
         </table>
@@ -455,7 +396,6 @@ const MortgageRatesTable = () => {
             <li><strong>Avg Principal/mo:</strong> The average amount per month that goes toward paying off your loan principal (the amount you borrowed). This is calculated by dividing $100,000 by the total number of months in the term</li>
             <li><strong>Avg Interest/mo:</strong> The average amount per month that goes toward interest charges. This is your cost for borrowing the money</li>
             <li><strong>Total Payment/mo:</strong> Your complete <strong>monthly payment</strong> per $100,000 borrowed (Principal + Interest). For example, if you borrow $300,000, multiply this amount by 3 to get your actual monthly payment</li>
-            <li><strong>Our Rates:</strong> Our competitive rates, which are 1% lower than bank rates, with the same payment breakdown shown</li>
             <li><strong>Why Averages?</strong> In reality, your early payments have more interest and less principal. Later payments have more principal and less interest. We show averages to make it easier to compare different terms and rates</li>
             <li><strong>Prime Rate:</strong> Base rate used by banks for variable mortgages</li>
             <li><strong>Variable Rate:</strong> Current rate for variable-rate mortgages (prime + discount/premium)</li>

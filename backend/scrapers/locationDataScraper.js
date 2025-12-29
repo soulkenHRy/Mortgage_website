@@ -168,7 +168,228 @@ function extractTaxRateFromResults(searchData) {
 }
 
 /**
- * Scrape location data using Brave API
+ * Extract demographic data from search results
+ */
+function extractDemographicsFromResults(searchData) {
+  if (!searchData || !searchData.web || !searchData.web.results) {
+    return {};
+  }
+
+  const results = searchData.web.results;
+  const demographics = {};
+
+  // Look for household income
+  const incomePatterns = [
+    /household\s+income.*?\$(\d{1,3}(?:,\d{3})*)/gi,
+    /median\s+income.*?\$(\d{1,3}(?:,\d{3})*)/gi,
+    /average\s+income.*?\$(\d{1,3}(?:,\d{3})*)/gi
+  ];
+
+  for (const result of results) {
+    const text = `${result.title} ${result.description}`;
+    
+    for (const pattern of incomePatterns) {
+      const match = pattern.exec(text);
+      if (match) {
+        const income = parseInt(match[1].replace(/,/g, ''));
+        if (income >= 30000 && income <= 300000) {
+          demographics.averageHouseholdIncome = income;
+          break;
+        }
+      }
+    }
+    if (demographics.averageHouseholdIncome) break;
+  }
+
+  // Look for population growth
+  const growthPatterns = [
+    /population\s+growth.*?(\d+\.?\d*)\s*%/gi,
+    /growing.*?(\d+\.?\d*)\s*%/gi
+  ];
+
+  for (const result of results) {
+    const text = `${result.title} ${result.description}`;
+    
+    for (const pattern of growthPatterns) {
+      const match = pattern.exec(text);
+      if (match) {
+        demographics.populationGrowth = `${match[1]}% annual growth`;
+        break;
+      }
+    }
+    if (demographics.populationGrowth) break;
+  }
+
+  return demographics;
+}
+
+/**
+ * Extract market data from search results
+ */
+function extractMarketDataFromResults(searchData) {
+  if (!searchData || !searchData.web || !searchData.web.results) {
+    return {};
+  }
+
+  const results = searchData.web.results;
+  const marketData = {};
+
+  // Look for days on market
+  const daysPatterns = [
+    /(\d+)\s+days?\s+on\s+market/gi,
+    /average.*?(\d+)\s+days/gi
+  ];
+
+  for (const result of results) {
+    const text = `${result.title} ${result.description}`;
+    
+    for (const pattern of daysPatterns) {
+      const match = pattern.exec(text);
+      if (match) {
+        const days = parseInt(match[1]);
+        if (days >= 1 && days <= 365) {
+          marketData.averageDaysOnMarket = days;
+          break;
+        }
+      }
+    }
+    if (marketData.averageDaysOnMarket) break;
+  }
+
+  return marketData;
+}
+
+/**
+ * Extract property type data from search results
+ */
+function extractPropertyTypeDataFromResults(searchData, propertyType) {
+  if (!searchData || !searchData.web || !searchData.web.results) {
+    return null;
+  }
+
+  const results = searchData.web.results;
+  const propertyData = {};
+
+  // Extract average/median prices
+  const pricePatterns = [
+    /average.*?price.*?\$\s*(\d{1,3}(?:,\d{3})*)/gi,
+    /median.*?price.*?\$\s*(\d{1,3}(?:,\d{3})*)/gi,
+    /\$\s*(\d{1,3}(?:,\d{3})*)/gi
+  ];
+
+  const prices = [];
+  for (const result of results) {
+    const text = `${result.title} ${result.description}`;
+    
+    for (const pattern of pricePatterns) {
+      const matches = text.matchAll(pattern);
+      for (const match of matches) {
+        const priceStr = match[1].replace(/,/g, '');
+        const price = parseFloat(priceStr);
+        
+        // Validate price range based on property type
+        const minPrice = propertyType === 'land' ? 50000 : 200000;
+        const maxPrice = propertyType === 'commercial' ? 10000000 : 5000000;
+        
+        if (price >= minPrice && price <= maxPrice) {
+          prices.push(price);
+        }
+      }
+    }
+  }
+
+  if (prices.length > 0) {
+    prices.sort((a, b) => a - b);
+    const median = prices[Math.floor(prices.length / 2)];
+    const average = prices.reduce((a, b) => a + b, 0) / prices.length;
+    
+    propertyData.averagePrice = Math.round(average);
+    propertyData.medianPrice = Math.round(median);
+    propertyData.priceRange = {
+      low: Math.round(Math.min(...prices)),
+      high: Math.round(Math.max(...prices))
+    };
+  }
+
+  // Extract days on market
+  const daysPatterns = [
+    /(\d+)\s+days?\s+on\s+market/gi,
+    /market.*?(\d+)\s+days/gi
+  ];
+
+  for (const result of results) {
+    const text = `${result.title} ${result.description}`;
+    for (const pattern of daysPatterns) {
+      const match = pattern.exec(text);
+      if (match) {
+        const days = parseInt(match[1]);
+        if (days >= 1 && days <= 365) {
+          propertyData.averageDaysOnMarket = days;
+          break;
+        }
+      }
+    }
+    if (propertyData.averageDaysOnMarket) break;
+  }
+
+  // Extract price per sqft
+  const sqftPatterns = [
+    /\$\s*(\d+(?:\.\d{2})?)\s*per\s+(?:sq\.?\s*ft|square\s+foot)/gi,
+    /(\d+)\s*\/\s*(?:sq\.?\s*ft|sqft)/gi
+  ];
+
+  for (const result of results) {
+    const text = `${result.title} ${result.description}`;
+    for (const pattern of sqftPatterns) {
+      const match = pattern.exec(text);
+      if (match) {
+        const pricePerSqFt = parseFloat(match[1]);
+        if (pricePerSqFt >= 50 && pricePerSqFt <= 2000) {
+          propertyData.pricePerSqFt = Math.round(pricePerSqFt);
+          break;
+        }
+      }
+    }
+    if (propertyData.pricePerSqFt) break;
+  }
+
+  return Object.keys(propertyData).length > 0 ? propertyData : null;
+}
+
+/**
+ * Scrape property type data for a specific location
+ */
+async function scrapePropertyTypeData(locationName, propertyType, propertyDescription) {
+  console.log(`   📊 Fetching ${propertyType} data...`);
+  
+  try {
+    const query = `${locationName} Ontario Canada ${propertyDescription} average price 2024 2025`;
+    const searchData = await searchBraveAPI(query);
+    
+    if (!searchData) {
+      console.log(`   ⚠️  No data found for ${propertyType}`);
+      return null;
+    }
+
+    const propertyData = extractPropertyTypeDataFromResults(searchData, propertyType);
+    
+    if (propertyData) {
+      propertyData.description = propertyDescription;
+      propertyData.lastUpdated = new Date();
+      console.log(`   ✅ ${propertyType}: $${propertyData.averagePrice?.toLocaleString() || 'N/A'}`);
+    } else {
+      console.log(`   ⚠️  No valid data for ${propertyType}`);
+    }
+    
+    return propertyData;
+  } catch (error) {
+    console.error(`   ❌ Error fetching ${propertyType} data:`, error.message);
+    return null;
+  }
+}
+
+/**
+ * Scrape location data using Brave API - ONLY REAL DATA
  */
 async function scrapeLocationData(locationName) {
   console.log(`\n📍 Fetching real data for ${locationName} from Brave API...`);
@@ -178,7 +399,6 @@ async function scrapeLocationData(locationName) {
     const priceQuery = `${locationName} Ontario Canada average home price 2024 2025`;
     const priceSearchData = await searchBraveAPI(priceQuery);
     
-    // Delay between API calls to avoid rate limiting
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     if (!priceSearchData) {
@@ -193,15 +413,55 @@ async function scrapeLocationData(locationName) {
       return null;
     }
 
+    // Fetch property type data
+    console.log(`   🏠 Fetching property type data...`);
+    const propertyTypes = {};
+    
+    // Houses (single-family homes)
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const housesData = await scrapePropertyTypeData(locationName, 'houses', 'single-family homes detached houses');
+    if (housesData) propertyTypes.houses = housesData;
+    
+    // Condos and townhouses
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const condosData = await scrapePropertyTypeData(locationName, 'condos', 'condos townhouses');
+    if (condosData) propertyTypes.condos = condosData;
+    
+    // Multi-family properties
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const multiFamilyData = await scrapePropertyTypeData(locationName, 'multiFamily', 'duplexes triplexes apartment buildings multi-family');
+    if (multiFamilyData) propertyTypes.multiFamily = multiFamilyData;
+    
+    // Land
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const landData = await scrapePropertyTypeData(locationName, 'land', 'vacant lots land for sale');
+    if (landData) propertyTypes.land = landData;
+    
+    // Commercial real estate
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const commercialData = await scrapePropertyTypeData(locationName, 'commercial', 'commercial real estate office buildings retail warehouses');
+    if (commercialData) propertyTypes.commercial = commercialData;
+
     // Search for property tax rate
+    await new Promise(resolve => setTimeout(resolve, 2000));
     const taxQuery = `${locationName} Ontario property tax rate 2024 2025`;
     const taxSearchData = await searchBraveAPI(taxQuery);
-    
-    // Delay after second API call
     await new Promise(resolve => setTimeout(resolve, 2000));
-
     const taxRate = extractTaxRateFromResults(taxSearchData);
 
+    // Search for demographics
+    const demoQuery = `${locationName} Ontario demographics household income population`;
+    const demoSearchData = await searchBraveAPI(demoQuery);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const demographics = extractDemographicsFromResults(demoSearchData);
+
+    // Search for market data
+    const marketQuery = `${locationName} Ontario real estate market days on market 2024`;
+    const marketSearchData = await searchBraveAPI(marketQuery);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const marketData = extractMarketDataFromResults(marketSearchData);
+
+    // Build location data object with ONLY real data from Brave API
     const locationData = {
       locationName,
       region: 'GTA Toronto',
@@ -214,6 +474,7 @@ async function scrapeLocationData(locationName) {
         },
         currency: 'CAD'
       },
+      ...(Object.keys(propertyTypes).length > 0 && { propertyTypes }),
       propertyTaxRate: taxRate ? {
         rate: parseFloat(taxRate.toFixed(2)),
         annualTaxExample: {
@@ -221,98 +482,10 @@ async function scrapeLocationData(locationName) {
           taxAmount: Math.round(averagePrice * taxRate / 100)
         },
         description: `Property tax rate for ${locationName}, Ontario`
-      } : {
-        rate: null,
-        annualTaxExample: null,
-        description: 'Unable to collect property tax data'
-      },
-      loanPrograms: [
-        {
-          name: 'First-Time Home Buyer Incentive',
-          type: 'Federal Program',
-          description: 'Shared-equity mortgage with the Government of Canada',
-          eligibility: 'First-time homebuyers with household income under $120,000',
-          benefits: [
-            '5% or 10% of home purchase price',
-            'Reduces monthly mortgage payments',
-            'No ongoing payments required'
-          ],
-          link: 'https://www.placetocallhome.ca/fthbi/first-time-homebuyer-incentive'
-        },
-        {
-          name: 'Home Buyers\' Plan (HBP)',
-          type: 'Federal Program',
-          description: 'Withdraw up to $35,000 from RRSP to buy or build a home',
-          eligibility: 'First-time homebuyers or those who haven\'t owned a home in 4 years',
-          benefits: [
-            'Borrow up to $35,000 from RRSP',
-            'No immediate tax implications',
-            '15 years to repay'
-          ],
-          link: 'https://www.canada.ca/en/revenue-agency/services/tax/individuals/topics/rrsps-related-plans/what-home-buyers-plan.html'
-        },
-        {
-          name: 'Ontario Land Transfer Tax Refund',
-          type: 'Provincial Assistance',
-          description: 'Refund of land transfer tax for first-time homebuyers',
-          eligibility: 'First-time homebuyers purchasing in Ontario',
-          benefits: [
-            'Up to $4,000 refund',
-            'Additional Toronto rebate if applicable',
-            'Covers most of land transfer tax'
-          ],
-          link: 'https://www.ontario.ca/page/land-transfer-tax'
-        },
-        {
-          name: 'CMHC Insured Mortgages',
-          type: 'Federal Program',
-          description: 'Mortgage insurance for down payments less than 20%',
-          eligibility: 'Homebuyers with down payment of 5-19.99%',
-          benefits: [
-            'Purchase with as little as 5% down',
-            'Access to better interest rates',
-            'Protected lender = more options'
-          ],
-          link: 'https://www.cmhc-schl.gc.ca/en/consumers/home-buying/mortgage-loan-insurance'
-        }
-      ],
-      hoaFees: {
-        applicable: locationName.includes('Toronto') || locationName === 'Mississauga' || locationName === 'Oakville',
-        averageMonthly: {
-          low: 200,
-          high: 600
-        },
-        commonIn: ['Condominiums', 'Townhouses', 'Gated Communities'],
-        description: 'HOA fees typically apply to condos and townhouses. Fees cover amenities, maintenance, and building insurance.'
-      },
-      insuranceEstimates: {
-        homeownersInsurance: {
-          monthlyLow: Math.round(averagePrice * 0.0003),
-          monthlyHigh: Math.round(averagePrice * 0.0007),
-          annualAverage: Math.round(averagePrice * 0.005)
-        },
-        floodInsurance: {
-          required: ['Toronto Downtown', 'Mississauga', 'Oakville', 'Burlington'].includes(locationName),
-          monthlyEstimate: 50,
-          floodZone: ['Toronto Downtown', 'Mississauga'].includes(locationName) ? 'Moderate Risk' : 'Low Risk'
-        },
-        otherCoverage: [
-          {
-            type: 'Sewer Backup Coverage',
-            monthlyEstimate: 15,
-            description: 'Recommended for basement properties'
-          },
-          {
-            type: 'Earthquake Coverage',
-            monthlyEstimate: 25,
-            description: 'Optional coverage for GTA region'
-          }
-        ]
-      },
+      } : null,
       additionalInfo: {
-        dataSource: 'Brave Search API',
-        dataCollectionDate: new Date(),
-        disclaimer: 'Data collected from public web sources via Brave Search API. For current prices, consult a real estate professional.'
+        ...(marketData.averageDaysOnMarket && { averageDaysOnMarket: marketData.averageDaysOnMarket }),
+        ...(Object.keys(demographics).length > 0 && { demographics })
       },
       dataSource: {
         sources: ['Brave Search API', 'Real Estate Web Data'],
@@ -323,7 +496,12 @@ async function scrapeLocationData(locationName) {
       }
     };
 
-    console.log(`✅ Collected data for ${locationName}: $${averagePrice.toLocaleString()} avg, ${taxRate ? taxRate.toFixed(2) + '%' : 'N/A'} tax`);
+    // Only add additionalInfo if it has data
+    if (Object.keys(locationData.additionalInfo).length === 0) {
+      delete locationData.additionalInfo;
+    }
+
+    console.log(`✅ Collected data for ${locationName}: $${averagePrice.toLocaleString()} avg, ${taxRate ? taxRate.toFixed(2) + '%' : 'N/A'} tax, ${Object.keys(propertyTypes).length} property types`);
     return locationData;
     
   } catch (error) {

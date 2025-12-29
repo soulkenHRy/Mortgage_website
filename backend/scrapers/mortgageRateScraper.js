@@ -275,7 +275,7 @@ async function scrapeAndSaveMortgageRates() {
       const now = new Date();
       const hoursSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60);
       
-      if (hoursSinceUpdate < 23) {
+      if (hoursSinceUpdate < 168) {
         console.log(`⏭️  Skipping update - rates were updated ${hoursSinceUpdate.toFixed(1)} hours ago`);
         console.log('📊 Using existing rates from database');
         return existingRates;
