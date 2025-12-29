@@ -75,7 +75,7 @@ mongoose.connect(MONGODB_URI)
     .then(() => console.log('✅ Mortgage rates ready'))
     .catch(err => console.error('❌ Mortgage rates scrape error:', err.message));
 
-  // Initialize location data on first startup (if database is empty)
+  // Initialize location data (will check last update internally)
   try {
     const locationCount = await LocationData.countDocuments();
     if (locationCount === 0) {
@@ -85,6 +85,7 @@ mongoose.connect(MONGODB_URI)
         .catch(err => console.error('❌ Location data error:', err.message));
     } else {
       console.log(`✅ Location data already exists (${locationCount} locations)`);
+      console.log('💡 Use POST /api/locations/refresh to update property types');
     }
   } catch (err) {
     console.error('❌ Location check error:', err.message);

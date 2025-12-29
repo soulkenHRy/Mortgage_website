@@ -332,6 +332,83 @@ function Locations() {
                 )}
               </div>
             )}
+
+            {/* Mortgage Information Section */}
+            {locationData.mortgageInfo && (
+              <div className="detail-section mortgage-info-section">
+                <h3>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+                  </svg>
+                  Mortgage Guide for {locationData.locationName}
+                </h3>
+                
+                {locationData.mortgageInfo.description && (
+                  <p className="mortgage-description">{locationData.mortgageInfo.description}</p>
+                )}
+
+                {locationData.mortgageInfo.marketInsights && locationData.mortgageInfo.marketInsights.length > 0 && (
+                  <div className="mortgage-subsection">
+                    <h4>Market Insights</h4>
+                    <ul className="insights-list">
+                      {locationData.mortgageInfo.marketInsights.map((insight, index) => (
+                        <li key={index}>{insight}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {locationData.mortgageInfo.buyerTips && locationData.mortgageInfo.buyerTips.length > 0 && (
+                  <div className="mortgage-subsection">
+                    <h4>💡 Homebuyer Tips</h4>
+                    <ul className="tips-list">
+                      {locationData.mortgageInfo.buyerTips.map((tip, index) => (
+                        <li key={index}>{tip}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {locationData.mortgageInfo.trustedResources && locationData.mortgageInfo.trustedResources.length > 0 && (
+                  <div className="mortgage-subsection">
+                    <h4>🔗 Trusted Resources</h4>
+                    <div className="resources-grid">
+                      {locationData.mortgageInfo.trustedResources.map((resource, index) => (
+                        <a 
+                          key={index}
+                          href={resource.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="resource-card"
+                        >
+                          <div className="resource-header">
+                            <span className="resource-name">{resource.name}</span>
+                            <span className="resource-category">{resource.category}</span>
+                          </div>
+                          <p className="resource-description">{resource.description}</p>
+                          <span className="resource-link">Visit Website →</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+                          </span>
+                        </div>
+                      )}
+                      {locationData.additionalInfo.demographics.populationGrowth && (
+                        <div className="demo-item">
+                          <span className="demo-label">Population Growth</span>
+                          <span className="demo-value">{locationData.additionalInfo.demographics.populationGrowth}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

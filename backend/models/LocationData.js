@@ -71,6 +71,17 @@ const locationDataSchema = new mongoose.Schema({
       populationGrowth: String
     }
   },
+  mortgageInfo: {
+    description: String,
+    marketInsights: [String],
+    buyerTips: [String],
+    trustedResources: [{
+      name: String,
+      url: String,
+      description: String,
+      category: String
+    }]
+  },
   dataSource: {
     sources: [String],
     lastUpdated: {
