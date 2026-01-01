@@ -395,20 +395,6 @@ function Locations() {
                 )}
               </div>
             )}
-                          </span>
-                        </div>
-                      )}
-                      {locationData.additionalInfo.demographics.populationGrowth && (
-                        <div className="demo-item">
-                          <span className="demo-label">Population Growth</span>
-                          <span className="demo-value">{locationData.additionalInfo.demographics.populationGrowth}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         )}
 
