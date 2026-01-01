@@ -344,6 +344,7 @@ function App() {
   const [verificationCode, setVerificationCode] = useState('')
   const [verificationEmail, setVerificationEmail] = useState('')
   const [isVerified, setIsVerified] = useState(true) // Assume verified until told otherwise
+  const [pendingUser, setPendingUser] = useState(null) // Store user info until email is verified
   const [feedbackData, setFeedbackData] = useState({ rating: 5, feedback: '' })
   const [currentUser, setCurrentUser] = useState(localStorage.getItem('username') || null)
   const [authToken, setAuthToken] = useState(localStorage.getItem('authToken') || null)
@@ -416,24 +417,29 @@ function App() {
       .then(res => res.json())
       .then(data => {
         if (data && data.user && data.user.username && data.token) {
-          setCurrentUser(data.user.username)
-          setAuthToken(data.token)
-          // Store in localStorage for persistence
-          localStorage.setItem('username', data.user.username)
-          localStorage.setItem('authToken', data.token)
-          if (data.user.email) {
-            localStorage.setItem('userEmail', data.user.email)
-            fetchUserAppointments(data.user.email)
-          }
-          
-          // Check if user needs verification
+          // Check if user needs verification BEFORE logging them in
           if (data.requiresVerification) {
+            // Store pending user info - don't log them in yet
+            setPendingUser({
+              username: data.user.username,
+              email: data.user.email,
+              token: data.token
+            })
             setIsVerified(false)
             setVerificationEmail(data.user.email)
             setShowLoginModal(false)
             setShowVerificationModal(true)
-            alert('Please verify your email to access all features. Check your email for the verification code.')
+            alert('Please verify your email to access your account. Check your email for the verification code.')
           } else {
+            // User is verified - log them in
+            setCurrentUser(data.user.username)
+            setAuthToken(data.token)
+            localStorage.setItem('username', data.user.username)
+            localStorage.setItem('authToken', data.token)
+            if (data.user.email) {
+              localStorage.setItem('userEmail', data.user.email)
+              fetchUserAppointments(data.user.email)
+            }
             setIsVerified(true)
             setShowLoginModal(false)
             alert('Login successful!')
@@ -460,25 +466,29 @@ function App() {
       .then(res => res.json())
       .then(data => {
         if (data && data.user && data.user.username && data.token) {
-          setCurrentUser(data.user.username)
-          setAuthToken(data.token)
-          // Store in localStorage for persistence
-          localStorage.setItem('username', data.user.username)
-          localStorage.setItem('authToken', data.token)
-          if (data.user.email) {
-            localStorage.setItem('userEmail', data.user.email)
-            setVerificationEmail(data.user.email)
-          }
-          setShowSignupModal(false)
-          
-          // For new users, always show verification modal
+          // For new users, store as pending - don't log them in until verified
           if (data.isNewUser || data.requiresVerification) {
+            setPendingUser({
+              username: data.user.username,
+              email: data.user.email,
+              token: data.token
+            })
             setIsVerified(false)
+            setVerificationEmail(data.user.email)
+            setShowSignupModal(false)
             alert(data.message || 'Account created! Please check your email for verification code.')
-            // Show verification modal after alert is dismissed
             setShowVerificationModal(true)
           } else {
+            // Already verified (shouldn't happen for new users, but just in case)
+            setCurrentUser(data.user.username)
+            setAuthToken(data.token)
+            localStorage.setItem('username', data.user.username)
+            localStorage.setItem('authToken', data.token)
+            if (data.user.email) {
+              localStorage.setItem('userEmail', data.user.email)
+            }
             setIsVerified(true)
+            setShowSignupModal(false)
             alert('Signup successful!')
           }
         } else {
@@ -516,11 +526,21 @@ function App() {
         setIsVerified(true)
         setShowVerificationModal(false)
         setVerificationCode('')
-        alert(data.message || 'Email verified successfully!')
-        // Reload appointments now that user is verified
-        if (verificationEmail) {
-          fetchUserAppointments(verificationEmail)
+        
+        // Now complete the login with pending user info
+        if (pendingUser) {
+          setCurrentUser(pendingUser.username)
+          setAuthToken(pendingUser.token)
+          localStorage.setItem('username', pendingUser.username)
+          localStorage.setItem('authToken', pendingUser.token)
+          if (pendingUser.email) {
+            localStorage.setItem('userEmail', pendingUser.email)
+            fetchUserAppointments(pendingUser.email)
+          }
+          setPendingUser(null) // Clear pending user
         }
+        
+        alert(data.message || 'Email verified successfully! You are now logged in.')
       } else {
         alert(data.error || 'Verification failed. Please try again.')
       }
@@ -1615,13 +1635,15 @@ function App() {
         </div>
       )}
 
-      {/* Email Verification Modal */}
+      {/* Email Verification Modal - Cannot be closed if pending verification */}
       {showVerificationModal && (
-        <div className="modal-overlay" onClick={() => setShowVerificationModal(false)}>
+        <div className="modal-overlay">
           <div className="modal-content verification-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowVerificationModal(false)}>×</button>
             <h2 className="modal-title">Verify Your Email</h2>
             <p className="feedback-subtitle">We sent a 6-digit code to {verificationEmail}</p>
+            <p style={{ fontSize: '14px', color: '#dc2626', marginBottom: '15px', textAlign: 'center' }}>
+              ⚠️ You must verify your email to access your account
+            </p>
             <form onSubmit={handleVerifyEmail} className="verification-form">
               <div className="form-group">
                 <label>Verification Code</label>
@@ -1648,6 +1670,26 @@ function App() {
             <p style={{ fontSize: '12px', color: '#666', marginTop: '15px', textAlign: 'center' }}>
               Code expires in 10 minutes. Check your spam folder if you don't see the email.
             </p>
+            <button 
+              type="button" 
+              onClick={() => {
+                setShowVerificationModal(false)
+                setPendingUser(null)
+                setVerificationEmail('')
+                setVerificationCode('')
+              }}
+              style={{ 
+                marginTop: '15px', 
+                background: 'none', 
+                border: 'none', 
+                color: '#666', 
+                cursor: 'pointer',
+                fontSize: '12px',
+                textDecoration: 'underline'
+              }}
+            >
+              Cancel and go back
+            </button>
           </div>
         </div>
       )}
