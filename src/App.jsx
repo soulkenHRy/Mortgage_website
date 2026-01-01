@@ -1851,18 +1851,6 @@ function App() {
               </button>
 
               <button 
-                className={`nav-item ${currentView === 'faq' ? 'active' : ''}`}
-                onClick={() => handleNavClick('faq')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-                <span>FAQ</span>
-              </button>
-
-              <button 
                 className={`nav-item ${currentView === 'locations' ? 'active' : ''}`}
                 onClick={() => handleNavClick('locations')}
               >
@@ -1973,18 +1961,6 @@ function App() {
                   <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                 </svg>
                 <span>Learning Center</span>
-              </button>
-
-              <button 
-                className={`nav-item ${currentView === 'faq' ? 'active' : ''}`}
-                onClick={() => handleNavClick('faq')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-                <span>FAQ</span>
               </button>
 
               <button 
@@ -2101,18 +2077,6 @@ function App() {
               </button>
 
               <button 
-                className={`nav-item ${currentView === 'faq' ? 'active' : ''}`}
-                onClick={() => handleNavClick('faq')}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-                <span>FAQ</span>
-              </button>
-
-              <button 
                 className={`nav-item ${currentView === 'locations' ? 'active' : ''}`}
                 onClick={() => handleNavClick('locations')}
               >
@@ -2226,15 +2190,348 @@ function App() {
               </button>
 
               <button 
-                className={`nav-item ${currentView === 'faq' ? 'active' : ''}`}
-                onClick={() => handleNavClick('faq')}
+                className={`nav-item ${currentView === 'locations' ? 'active' : ''}`}
+                onClick={() => handleNavClick('locations')}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="10"/>
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
                 </svg>
-                <span>FAQ</span>
+                <span>Locations</span>
+              </button>
+
+              {currentUser && (
+                <button 
+                  className={`nav-item ${currentView === 'world-chat' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('world-chat')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span>World Chat</span>
+                </button>
+              )}
+            </nav>
+          </div>
+        </div>
+      )}
+
+      {/* Learning Center Hero Video */}
+      {currentView === 'educational-content' && (
+        <div className="hero-video-container">
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            preload="auto"
+            className="hero-video"
+            onLoadedData={(e) => e.target.classList.add('loaded')}
+          >
+            <source src="/hero_video/Learning_center_hero_background.mp4" type="video/mp4" />
+          </video>
+          <div className="hero-video-overlay"></div>
+          <div className="nav-and-image-container">
+            <nav className="navigation-bar">
+              <button 
+                className={`nav-item ${currentView === 'calculator' ? 'active' : ''}`}
+                onClick={() => handleNavClick('calculator')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="4" y="2" width="16" height="20" rx="2"/>
+                  <line x1="8" y1="6" x2="16" y2="6"/>
+                  <line x1="8" y1="10" x2="16" y2="10"/>
+                  <line x1="8" y1="14" x2="16" y2="14"/>
+                  <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg>
+                <span>Calculator</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'team' ? 'active' : ''}`}
+                onClick={() => handleNavClick('team')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>Brokers and Agents</span>
+              </button>
+
+              {currentUser && (
+                <button 
+                  className={`nav-item ${currentView === 'appointments' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('appointments')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <span>My Appointments {userAppointments.length > 0 && `(${userAppointments.length})`}</span>
+                </button>
+              )}
+
+              <button
+                className={`nav-item ${currentView === 'rates' ? 'active' : ''}`}
+                onClick={() => handleNavClick('rates')}
+              >
+                <span style={{ fontSize: '1.7em', fontWeight: 'bold', marginRight: '6px' }}>%</span>
+                <span>Our Rates</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'news-events' ? 'active' : ''}`}
+                onClick={() => handleNavClick('news-events')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                </svg>
+                <span>News & Events</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'educational-content' ? 'active' : ''}`}
+                onClick={() => handleNavClick('educational-content')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                <span>Learning Center</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'locations' ? 'active' : ''}`}
+                onClick={() => handleNavClick('locations')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span>Locations</span>
+              </button>
+
+              {currentUser && (
+                <button 
+                  className={`nav-item ${currentView === 'world-chat' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('world-chat')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span>World Chat</span>
+                </button>
+              )}
+            </nav>
+          </div>
+        </div>
+      )}
+
+      {/* Locations Hero Video */}
+      {currentView === 'locations' && (
+        <div className="hero-video-container">
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            preload="auto"
+            className="hero-video"
+            onLoadedData={(e) => e.target.classList.add('loaded')}
+          >
+            <source src="/hero_video/Location_hero_background.mp4" type="video/mp4" />
+          </video>
+          <div className="hero-video-overlay"></div>
+          <div className="nav-and-image-container">
+            <nav className="navigation-bar">
+              <button 
+                className={`nav-item ${currentView === 'calculator' ? 'active' : ''}`}
+                onClick={() => handleNavClick('calculator')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="4" y="2" width="16" height="20" rx="2"/>
+                  <line x1="8" y1="6" x2="16" y2="6"/>
+                  <line x1="8" y1="10" x2="16" y2="10"/>
+                  <line x1="8" y1="14" x2="16" y2="14"/>
+                  <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg>
+                <span>Calculator</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'team' ? 'active' : ''}`}
+                onClick={() => handleNavClick('team')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>Brokers and Agents</span>
+              </button>
+
+              {currentUser && (
+                <button 
+                  className={`nav-item ${currentView === 'appointments' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('appointments')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <span>My Appointments {userAppointments.length > 0 && `(${userAppointments.length})`}</span>
+                </button>
+              )}
+
+              <button
+                className={`nav-item ${currentView === 'rates' ? 'active' : ''}`}
+                onClick={() => handleNavClick('rates')}
+              >
+                <span style={{ fontSize: '1.7em', fontWeight: 'bold', marginRight: '6px' }}>%</span>
+                <span>Our Rates</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'news-events' ? 'active' : ''}`}
+                onClick={() => handleNavClick('news-events')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                </svg>
+                <span>News & Events</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'educational-content' ? 'active' : ''}`}
+                onClick={() => handleNavClick('educational-content')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                <span>Learning Center</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'locations' ? 'active' : ''}`}
+                onClick={() => handleNavClick('locations')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span>Locations</span>
+              </button>
+
+              {currentUser && (
+                <button 
+                  className={`nav-item ${currentView === 'world-chat' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('world-chat')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span>World Chat</span>
+                </button>
+              )}
+            </nav>
+          </div>
+        </div>
+      )}
+
+      {/* World Chat Hero Video */}
+      {currentView === 'world-chat' && (
+        <div className="hero-video-container">
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
+            preload="auto"
+            className="hero-video"
+            onLoadedData={(e) => e.target.classList.add('loaded')}
+          >
+            <source src="/hero_video/world_chat_hero_images.mp4" type="video/mp4" />
+          </video>
+          <div className="hero-video-overlay"></div>
+          <div className="nav-and-image-container">
+            <nav className="navigation-bar">
+              <button 
+                className={`nav-item ${currentView === 'calculator' ? 'active' : ''}`}
+                onClick={() => handleNavClick('calculator')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="4" y="2" width="16" height="20" rx="2"/>
+                  <line x1="8" y1="6" x2="16" y2="6"/>
+                  <line x1="8" y1="10" x2="16" y2="10"/>
+                  <line x1="8" y1="14" x2="16" y2="14"/>
+                  <line x1="8" y1="18" x2="16" y2="18"/>
+                </svg>
+                <span>Calculator</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'team' ? 'active' : ''}`}
+                onClick={() => handleNavClick('team')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+                <span>Brokers and Agents</span>
+              </button>
+
+              {currentUser && (
+                <button 
+                  className={`nav-item ${currentView === 'appointments' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('appointments')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  <span>My Appointments {userAppointments.length > 0 && `(${userAppointments.length})`}</span>
+                </button>
+              )}
+
+              <button
+                className={`nav-item ${currentView === 'rates' ? 'active' : ''}`}
+                onClick={() => handleNavClick('rates')}
+              >
+                <span style={{ fontSize: '1.7em', fontWeight: 'bold', marginRight: '6px' }}>%</span>
+                <span>Our Rates</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'news-events' ? 'active' : ''}`}
+                onClick={() => handleNavClick('news-events')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/>
+                </svg>
+                <span>News & Events</span>
+              </button>
+
+              <button 
+                className={`nav-item ${currentView === 'educational-content' ? 'active' : ''}`}
+                onClick={() => handleNavClick('educational-content')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                <span>Learning Center</span>
               </button>
 
               <button 
@@ -2265,7 +2562,7 @@ function App() {
       )}
 
       {/* Navigation Bar for homepage and sections without video backgrounds */}
-      {(!currentView || !['calculator', 'team', 'rates', 'news-events'].includes(currentView)) && (
+      {(!currentView || !['calculator', 'team', 'rates', 'news-events', 'educational-content', 'locations', 'world-chat'].includes(currentView)) && (
         <div className="nav-and-image-container">
           <nav className="navigation-bar">
             <button 
@@ -2337,18 +2634,6 @@ function App() {
                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
               </svg>
               <span>Learning Center</span>
-            </button>
-
-            <button 
-              className={`nav-item ${currentView === 'faq' ? 'active' : ''}`}
-              onClick={() => handleNavClick('faq')}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="10"/>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                <line x1="12" y1="17" x2="12.01" y2="17"/>
-              </svg>
-              <span>FAQ</span>
             </button>
 
             <button 
