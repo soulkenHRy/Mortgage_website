@@ -472,11 +472,13 @@ function App() {
           setShowSignupModal(false)
           
           // For new users, always show verification modal
-          if (data.isNewUser) {
+          if (data.isNewUser || data.requiresVerification) {
             setIsVerified(false)
-            setShowVerificationModal(true)
             alert(data.message || 'Account created! Please check your email for verification code.')
+            // Show verification modal after alert is dismissed
+            setShowVerificationModal(true)
           } else {
+            setIsVerified(true)
             alert('Signup successful!')
           }
         } else {
