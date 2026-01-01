@@ -154,14 +154,6 @@ function getMortgageInfoForLocation(locationName) {
     trustedResources
   };
 }
-  'Oakville',
-  'Burlington',
-  'Milton',
-  'Ajax',
-  'Pickering',
-  'Whitby',
-  'Oshawa'
-];
 
 /**
  * Search Brave API for location data with retry logic
