@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cron = require('node-cron');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { Resend } = require('resend');
+const sgMail = require('@sendgrid/mail');
 const crypto = require('crypto');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -37,17 +37,16 @@ if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
   console.warn('⚠️  WARNING: Using default JWT_SECRET. Set JWT_SECRET in .env file!');
 }
 
-// Resend Email Configuration (HTTP-based, works on Railway)
-let resend;
-const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev'; // Use resend.dev for testing
+// Sendgrid Email Configuration (HTTP-based, works on Railway)
+const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@yourdomain.com';
 
-if (process.env.RESEND_API_KEY) {
-  resend = new Resend(process.env.RESEND_API_KEY);
-  console.log('✅ Resend email service configured');
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  console.log('✅ Sendgrid email service configured');
   console.log(`📧 Emails will be sent from: ${FROM_EMAIL}`);
 } else {
-  console.warn('⚠️  WARNING: RESEND_API_KEY not set. Email service disabled.');
-  console.log('   Get your free API key at: https://resend.com');
+  console.warn('⚠️  WARNING: SENDGRID_API_KEY not set. Email service disabled.');
+  console.log('   Get your free API key at: https://sendgrid.com');
 }
 
 // MongoDB Connection
@@ -1236,12 +1235,12 @@ app.post('/api/login', async (req, res) => {
       user.verificationTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
       await user.save();
 
-      // Send verification email using Resend
-      if (resend) {
+      // Send verification email using Sendgrid
+      if (process.env.SENDGRID_API_KEY) {
         try {
-          const { data, error } = await resend.emails.send({
-            from: FROM_EMAIL,
+          await sgMail.send({
             to: normalizedEmail,
+            from: FROM_EMAIL,
             subject: 'Verify Your Email - Mortgage Calculator',
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -1258,17 +1257,12 @@ app.post('/api/login', async (req, res) => {
               </div>
             `
           });
-
-          if (error) {
-            console.error('❌ Resend email error:', error);
-          } else {
-            console.log(`✅ Verification email sent to ${normalizedEmail} (ID: ${data.id})`);
-          }
+          console.log(`✅ Verification email sent to ${normalizedEmail}`);
         } catch (emailError) {
-          console.error('❌ Email sending error:', emailError);
+          console.error('❌ Email sending error:', emailError.response?.body || emailError);
         }
       } else {
-        console.warn('⚠️ Email not sent - Resend not configured');
+        console.warn('⚠️ Email not sent - Sendgrid not configured');
       }
       
       // Generate JWT token (user can login but features are locked until verified)
@@ -1376,14 +1370,14 @@ app.post('/api/send-verification', async (req, res) => {
     user.verificationTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
-    // Send email using Resend
-    if (!resend) {
+    // Send email using Sendgrid
+    if (!process.env.SENDGRID_API_KEY) {
       return res.status(500).json({ success: false, error: 'Email service not configured' });
     }
 
-    const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+    await sgMail.send({
       to: email,
+      from: FROM_EMAIL,
       subject: 'Verify Your Email - Mortgage Calculator',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -1401,12 +1395,7 @@ app.post('/api/send-verification', async (req, res) => {
       `
     });
 
-    if (error) {
-      console.error('❌ Resend email error:', error);
-      return res.status(500).json({ success: false, error: 'Failed to send verification email' });
-    }
-
-    console.log(`✅ Verification email resent to ${email} (ID: ${data.id})`);
+    console.log(`✅ Verification email resent to ${email}`);
 
     res.json({ 
       success: true, 
