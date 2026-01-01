@@ -39,14 +39,20 @@ if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
 
 let emailTransporter;
 const EMAIL_CONFIG = {
-  service: 'gmail',
   host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false, // Use STARTTLS
   auth: {
     user: process.env.EMAIL_USER || 'your-email@gmail.com',
     pass: process.env.EMAIL_PASS || 'your-app-password'
-  }
+  },
+  tls: {
+    ciphers: 'SSLv3',
+    rejectUnauthorized: false
+  },
+  connectionTimeout: 30000, // 30 seconds
+  greetingTimeout: 30000,
+  socketTimeout: 30000
 };
 
 if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
