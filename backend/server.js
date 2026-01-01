@@ -1168,12 +1168,78 @@ app.get('/api/feedback/user/:username', async (req, res) => {
 // User registration/login endpoint
 app.post('/api/login', async (req, res) => {
   try {
-    const { username, password, email } = req.body;
+    const { username, password, email, loginEmail } = req.body;
     
-    // For login: only username and password required
+    // For login: loginEmail and password required
     // For signup: username, password, and email required
-    const isSignup = email ? true : false;
+    const isSignup = email && username ? true : false;
+    const isLogin = loginEmail ? true : false;
     
+    if (isLogin) {
+      // LOGIN FLOW - use email to find user
+      if (!loginEmail || !password) {
+        return res.status(400).json({ success: false, error: 'Email and password are required.' });
+      }
+      
+      const normalizedLoginEmail = loginEmail.toLowerCase().trim();
+      const user = await User.findOne({ email: normalizedLoginEmail });
+      
+      if (!user) {
+        return res.status(401).json({ success: false, error: 'No account found with this email. Please sign up.' });
+      }
+      
+      // Check if account is locked
+      if (user.lockUntil && user.lockUntil > Date.now()) {
+        const minutesLeft = Math.ceil((user.lockUntil - Date.now()) / 60000);
+        return res.status(423).json({ 
+          success: false, 
+          error: `Account is locked due to multiple failed login attempts. Please try again in ${minutesLeft} minutes.` 
+        });
+      }
+      
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      
+      if (!isPasswordValid) {
+        user.loginAttempts = (user.loginAttempts || 0) + 1;
+        if (user.loginAttempts >= 5) {
+          user.lockUntil = new Date(Date.now() + 30 * 60 * 1000);
+          await user.save();
+          return res.status(423).json({ 
+            success: false, 
+            error: 'Too many failed login attempts. Account locked for 30 minutes.' 
+          });
+        }
+        await user.save();
+        return res.status(401).json({ 
+          success: false, 
+          error: `Invalid password. ${5 - user.loginAttempts} attempts remaining.` 
+        });
+      }
+      
+      // Successful login - reset attempts
+      user.loginAttempts = 0;
+      user.lockUntil = null;
+      user.lastLoginIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+      await user.save();
+      
+      const token = jwt.sign(
+        { username: user.username, email: user.email },
+        JWT_SECRET,
+        { expiresIn: '24h' }
+      );
+      
+      return res.json({ 
+        success: true, 
+        user: { username: user.username, email: user.email }, 
+        token,
+        isNewUser: false,
+        isVerified: user.isVerified,
+        requiresVerification: !user.isVerified
+      });
+    }
+    
+    // SIGNUP FLOW - original logic
     if (!username || !password) {
       return res.status(400).json({ success: false, error: 'Username and password are required.' });
     }
@@ -1281,59 +1347,10 @@ app.post('/api/login', async (req, res) => {
         message: 'Account created! Please check your email for verification code.'
       });
     } else {
-      // Existing user - check if account is locked
-      if (user.lockUntil && user.lockUntil > Date.now()) {
-        const minutesLeft = Math.ceil((user.lockUntil - Date.now()) / 60000);
-        return res.status(423).json({ 
-          success: false, 
-          error: `Account is locked due to multiple failed login attempts. Please try again in ${minutesLeft} minutes.` 
-        });
-      }
-      
-      // Verify password using bcrypt
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      
-      if (!isPasswordValid) {
-        // Increment failed login attempts
-        user.loginAttempts = (user.loginAttempts || 0) + 1;
-        
-        // Lock account after 5 failed attempts for 30 minutes
-        if (user.loginAttempts >= 5) {
-          user.lockUntil = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes
-          await user.save();
-          return res.status(423).json({ 
-            success: false, 
-            error: 'Too many failed login attempts. Account locked for 30 minutes.' 
-          });
-        }
-        
-        await user.save();
-        return res.status(401).json({ 
-          success: false, 
-          error: `Invalid password. ${5 - user.loginAttempts} attempts remaining.` 
-        });
-      }
-      
-      // Successful login - reset attempts and update IP
-      user.loginAttempts = 0;
-      user.lockUntil = null;
-      user.lastLoginIP = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-      await user.save();
-      
-      // Generate JWT token
-      const token = jwt.sign(
-        { username: user.username, email: user.email },
-        JWT_SECRET,
-        { expiresIn: '24h' }
-      );
-      
-      res.json({ 
-        success: true, 
-        user: { username: user.username, email: user.email }, 
-        token,
-        isNewUser: false,
-        isVerified: user.isVerified,
-        requiresVerification: !user.isVerified
+      // Username already exists during signup
+      return res.status(400).json({ 
+        success: false, 
+        error: 'This username is already taken. Please choose a different username.' 
       });
     }
   } catch (error) {

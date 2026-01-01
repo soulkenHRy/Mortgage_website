@@ -336,7 +336,7 @@ function App() {
   const [economicData, setEconomicData] = useState(null)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showSignupModal, setShowSignupModal] = useState(false)
-  const [loginData, setLoginData] = useState({ username: '', password: '' })
+  const [loginData, setLoginData] = useState({ email: '', password: '' })
   const [signupData, setSignupData] = useState({ email: '', username: '', password: '' })
   const [openFaqItems, setOpenFaqItems] = useState(new Set())
   const [showFeedbackModal, setShowFeedbackModal] = useState(false)
@@ -410,7 +410,7 @@ function App() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        username: loginData.username,
+        loginEmail: loginData.email,
         password: loginData.password
       })
     })
@@ -447,7 +447,7 @@ function App() {
         } else {
           alert(data.error || 'Login failed. Please check your credentials.')
         }
-        setLoginData({ username: '', password: '' })
+        setLoginData({ email: '', password: '' })
       })
       .catch(() => {
         alert('Login error. Please try again later.')
@@ -1218,7 +1218,7 @@ function App() {
     setCurrentUser(null)
     setAuthToken(null)
     setUserAppointments([])
-    setLoginData({ username: '', password: '' })
+    setLoginData({ email: '', password: '' })
     setSignupData({ email: '', username: '', password: '' })
     setIsVerified(true) // Reset verification status
     setVerificationEmail('')
@@ -1527,13 +1527,13 @@ function App() {
             <h2 className="modal-title">Login to Your Account</h2>
             <form onSubmit={handleLogin} className="auth-form">
               <div className="form-group">
-                <label>Username</label>
+                <label>Email</label>
                 <input
-                  type="text"
-                  value={loginData.username}
-                  onChange={(e) => setLoginData({ ...loginData, username: e.target.value })}
+                  type="email"
+                  value={loginData.email}
+                  onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                   required
-                  placeholder="Enter your username"
+                  placeholder="Enter your email"
                 />
               </div>
               <div className="form-group">
