@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const cron = require('node-cron');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const crypto = require('crypto');
 const http = require('http');
 const { Server } = require('socket.io');
@@ -37,43 +37,17 @@ if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
   console.warn('⚠️  WARNING: Using default JWT_SECRET. Set JWT_SECRET in .env file!');
 }
 
-let emailTransporter;
-const EMAIL_CONFIG = {
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // Use STARTTLS
-  auth: {
-    user: process.env.EMAIL_USER || 'your-email@gmail.com',
-    pass: process.env.EMAIL_PASS || 'your-app-password'
-  },
-  tls: {
-    ciphers: 'SSLv3',
-    rejectUnauthorized: false
-  },
-  connectionTimeout: 30000, // 30 seconds
-  greetingTimeout: 30000,
-  socketTimeout: 30000
-};
+// Resend Email Configuration (HTTP-based, works on Railway)
+let resend;
+const FROM_EMAIL = process.env.FROM_EMAIL || 'onboarding@resend.dev'; // Use resend.dev for testing
 
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-  console.warn('⚠️  WARNING: Email credentials not set. Set EMAIL_USER and EMAIL_PASS in .env file!');
-}
-
-if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-  emailTransporter = nodemailer.createTransport(EMAIL_CONFIG);
-  
-  emailTransporter.verify((error, success) => {
-    if (error) {
-      console.error('❌ Email configuration error:', error.message);
-      console.log('⚠️  Note: Gmail may require App Password instead of regular password');
-      console.log('   Visit: https://myaccount.google.com/apppasswords');
-    } else {
-      console.log(`✅ Email server ready - ${process.env.EMAIL_USER}`);
-      console.log('📧 Verification emails will be sent to users');
-    }
-  });
+if (process.env.RESEND_API_KEY) {
+  resend = new Resend(process.env.RESEND_API_KEY);
+  console.log('✅ Resend email service configured');
+  console.log(`📧 Emails will be sent from: ${FROM_EMAIL}`);
 } else {
-  console.log('📧 Email service disabled (no credentials configured)');
+  console.warn('⚠️  WARNING: RESEND_API_KEY not set. Email service disabled.');
+  console.log('   Get your free API key at: https://resend.com');
 }
 
 // MongoDB Connection
@@ -1262,38 +1236,39 @@ app.post('/api/login', async (req, res) => {
       user.verificationTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
       await user.save();
 
-      // Send verification email
-      try {
-        const mailOptions = {
-          from: EMAIL_CONFIG.auth.user,
-          to: normalizedEmail,
-          subject: 'Verify Your Email - Mortgage Calculator',
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <h2 style="color: #2563eb;">Email Verification</h2>
-              <p>Hello ${normalizedUsername},</p>
-              <p>Thank you for signing up! Please use the following verification code to verify your email address:</p>
-              <div style="background-color: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0;">
-                <h1 style="color: #1f2937; letter-spacing: 5px; margin: 0;">${verificationCode}</h1>
+      // Send verification email using Resend
+      if (resend) {
+        try {
+          const { data, error } = await resend.emails.send({
+            from: FROM_EMAIL,
+            to: normalizedEmail,
+            subject: 'Verify Your Email - Mortgage Calculator',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #2563eb;">Email Verification</h2>
+                <p>Hello ${normalizedUsername},</p>
+                <p>Thank you for signing up! Please use the following verification code to verify your email address:</p>
+                <div style="background-color: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0;">
+                  <h1 style="color: #1f2937; letter-spacing: 5px; margin: 0;">${verificationCode}</h1>
+                </div>
+                <p>This code will expire in 10 minutes.</p>
+                <p>If you didn't create an account with us, please ignore this email.</p>
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
+                <p style="color: #6b7280; font-size: 12px;">Mortgage Calculator Team</p>
               </div>
-              <p>This code will expire in 10 minutes.</p>
-              <p>If you didn't create an account with us, please ignore this email.</p>
-              <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-              <p style="color: #6b7280; font-size: 12px;">Mortgage Calculator Team</p>
-            </div>
-          `
-        };
+            `
+          });
 
-        const info = await emailTransporter.sendMail(mailOptions);
-        console.log(`✅ Verification email sent to ${normalizedEmail}`);
-        
-        // If using Ethereal (test email), log the preview URL
-        if (nodemailer.getTestMessageUrl(info)) {
-          console.log('📧 Preview email: ' + nodemailer.getTestMessageUrl(info));
+          if (error) {
+            console.error('❌ Resend email error:', error);
+          } else {
+            console.log(`✅ Verification email sent to ${normalizedEmail} (ID: ${data.id})`);
+          }
+        } catch (emailError) {
+          console.error('❌ Email sending error:', emailError);
         }
-      } catch (emailError) {
-        console.error('❌ Email sending error:', emailError);
-        // Don't fail signup if email fails, but log it
+      } else {
+        console.warn('⚠️ Email not sent - Resend not configured');
       }
       
       // Generate JWT token (user can login but features are locked until verified)
@@ -1401,34 +1376,37 @@ app.post('/api/send-verification', async (req, res) => {
     user.verificationTokenExpires = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
-    // Email content
-    const mailOptions = {
-      from: EMAIL_CONFIG.auth.user,
+    // Send email using Resend
+    if (!resend) {
+      return res.status(500).json({ success: false, error: 'Email service not configured' });
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: FROM_EMAIL,
       to: email,
       subject: 'Verify Your Email - Mortgage Calculator',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #2563eb;">Email Verification</h2>
           <p>Hello ${user.username},</p>
-          <p>Thank you for signing up! Please use the following verification code to verify your email address:</p>
+          <p>Please use the following verification code to verify your email address:</p>
           <div style="background-color: #f3f4f6; padding: 20px; text-align: center; margin: 20px 0;">
             <h1 style="color: #1f2937; letter-spacing: 5px; margin: 0;">${verificationCode}</h1>
           </div>
           <p>This code will expire in 10 minutes.</p>
-          <p>If you didn't create an account with us, please ignore this email.</p>
+          <p>If you didn't request this, please ignore this email.</p>
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
           <p style="color: #6b7280; font-size: 12px;">Mortgage Calculator Team</p>
         </div>
       `
-    };
+    });
 
-    // Send email
-    const info = await emailTransporter.sendMail(mailOptions);
-    
-    // If using Ethereal (test email), log the preview URL
-    if (nodemailer.getTestMessageUrl(info)) {
-      console.log('📧 Preview email: ' + nodemailer.getTestMessageUrl(info));
+    if (error) {
+      console.error('❌ Resend email error:', error);
+      return res.status(500).json({ success: false, error: 'Failed to send verification email' });
     }
+
+    console.log(`✅ Verification email resent to ${email} (ID: ${data.id})`);
 
     res.json({ 
       success: true, 
