@@ -20,15 +20,21 @@ function Locations() {
     },
     { 
       key: 'condos', 
-      label: 'Condos & Townhouses', 
-      description: 'Condos and townhouses',
+      label: 'Condos', 
+      description: 'Condominium apartments',
       icon: '🏢'
+    },
+    { 
+      key: 'townhouses', 
+      label: 'Townhouses', 
+      description: 'Multi-level townhouse properties',
+      icon: '🏘️'
     },
     { 
       key: 'multiFamily', 
       label: 'Multi-Family Properties', 
       description: 'Duplexes, triplexes, apartment buildings',
-      icon: '🏘️'
+      icon: '🏬'
     },
     { 
       key: 'land', 
