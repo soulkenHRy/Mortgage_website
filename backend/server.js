@@ -7,6 +7,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const http = require('http');
+const { Server } = require('socket.io');
 const EconomicData = require('./models/EconomicData');
 const Feedback = require('./models/Feedback');
 const User = require('./models/User');
@@ -20,6 +22,13 @@ const LocationData = require('./models/LocationData');
 const { scrapeAndSaveAllLocations, getAllLocations, getLocationByName } = require('./scrapers/locationDataScraper');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    methods: ['GET', 'POST']
+  }
+});
 const PORT = process.env.PORT || 3001;
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
@@ -1620,8 +1629,46 @@ app.get('/api/news-events', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
+// World Chat - In-memory storage for last 20 messages
+let chatMessages = [];
+const MAX_MESSAGES = 20;
+
+// Socket.io connection for World Chat
+io.on('connection', (socket) => {
+  console.log('User connected to World Chat:', socket.id);
+  
+  // Send existing messages to newly connected user
+  socket.emit('previous_messages', chatMessages);
+  
+  // Handle new message
+  socket.on('send_message', (data) => {
+    const { username, message, timestamp } = data;
+    
+    const chatMessage = {
+      id: Date.now() + Math.random(), // Simple unique ID
+      username,
+      message,
+      timestamp: timestamp || new Date().toISOString()
+    };
+    
+    // Add new message and keep only last 20
+    chatMessages.push(chatMessage);
+    if (chatMessages.length > MAX_MESSAGES) {
+      chatMessages = chatMessages.slice(-MAX_MESSAGES);
+    }
+    
+    // Broadcast to all connected clients
+    io.emit('receive_message', chatMessage);
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('User disconnected from World Chat:', socket.id);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`Backend server is running on http://localhost:${PORT}`);
+  console.log(`🌐 World Chat WebSocket is active`);
   console.log(`\n📊 Economic Data Endpoints (MongoDB + Web Scraping):`);
   console.log(`- GET  http://localhost:${PORT}/api/economic-data (All data)`);
   console.log(`- GET  http://localhost:${PORT}/api/economic-data/inflation`);

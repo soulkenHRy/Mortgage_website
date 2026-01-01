@@ -3,6 +3,7 @@ import './App.css'
 import { LineChart, Line, PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
 import MortgageRatesTable from './MortgageRatesTable'
 import Locations from './components/Locations'
+import WorldChat from './components/WorldChat'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -1871,6 +1872,18 @@ function App() {
                 </svg>
                 <span>Locations</span>
               </button>
+
+              {currentUser && (
+                <button 
+                  className={`nav-item ${currentView === 'world-chat' ? 'active' : ''}`}
+                  onClick={() => handleNavClick('world-chat')}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <span>World Chat</span>
+                </button>
+              )}
             </nav>
           </div>
         </div>
@@ -3233,6 +3246,23 @@ function App() {
         </div>
         ) : currentView === 'locations' ? (
         <Locations />
+        ) : currentView === 'world-chat' ? (
+        <div>
+          {currentUser ? (
+            <WorldChat user={{ username: currentUser }} />
+          ) : (
+            <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+              <h2>Please log in to access World Chat</h2>
+              <button 
+                className="cta-button" 
+                onClick={() => setShowLoginModal(true)}
+                style={{ marginTop: '20px' }}
+              >
+                Log In
+              </button>
+            </div>
+          )}
+        </div>
         ) : currentView === 'team' ? (
         <div className="team-section-container">
           <h2 className="team-section-title" style={{ textAlign: 'center', fontSize: '2.5rem', fontWeight: '700', marginBottom: '2rem', position: 'relative', zIndex: 1 }}>
