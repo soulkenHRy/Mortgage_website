@@ -36,14 +36,14 @@ const GeminiChatbot = () => {
     setIsLoading(true);
 
     try {
-      // Get Gemini model
-      const model = genAI.current.getGenerativeModel({ model: 'gemini-pro' });
+      // Get Gemini model - using gemini-1.5-flash for free tier
+      const model = genAI.current.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
       // Create conversation context with mortgage-specific instructions
       const conversationContext = `You are a helpful mortgage and real estate assistant. 
 You should provide accurate, friendly, and professional advice about mortgages, home buying, 
 interest rates, qualification requirements, and related financial topics. 
-Keep responses clear and informative.
+Keep responses clear, concise, and informative. Do not use markdown formatting.
 
 Previous conversation:
 ${messages.slice(-5).map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`).join('\n')}
@@ -60,9 +60,17 @@ Assistant:`;
       setMessages(prev => [...prev, { role: 'assistant', content: text }]);
     } catch (error) {
       console.error('Error sending message:', error);
+      let errorMessage = 'Sorry, I encountered an error. Please try again.';
+      if (error.message?.includes('API_KEY')) {
+        errorMessage = 'API key issue. Please contact support.';
+      } else if (error.message?.includes('quota')) {
+        errorMessage = 'API quota exceeded. Please try again later.';
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorMessage = 'Network error. Please check your connection and try again.';
+      }
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.'
+        content: errorMessage
       }]);
     } finally {
       setIsLoading(false);
