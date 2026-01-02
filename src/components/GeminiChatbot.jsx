@@ -36,8 +36,8 @@ const GeminiChatbot = () => {
     setIsLoading(true);
 
     try {
-      // Get Gemini model - using gemini-1.5-flash for free tier
-      const model = genAI.current.getGenerativeModel({ model: 'gemini-2.0-flash' });
+      // Get Gemini model - using gemini-2.5-flash for free tier
+      const model = genAI.current.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
       // Create conversation context with mortgage-specific instructions
       const conversationContext = `You are a helpful mortgage and real estate assistant. 
