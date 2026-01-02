@@ -4,6 +4,7 @@ import { LineChart, Line, PieChart, Pie, BarChart, Bar, XAxis, YAxis, CartesianG
 import MortgageRatesTable from './MortgageRatesTable'
 import Locations from './components/Locations'
 import WorldChat from './components/WorldChat'
+import GeminiChatbot from './components/GeminiChatbot'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -3524,8 +3525,7 @@ function App() {
         </div>
         ) : currentView === 'educational-content' ? (
         <div className="feature-box educational-content-box">
-          <h2 className="feature-title" style={{ textAlign: 'center', fontSize: '2.5rem', marginBottom: '1rem' }}>Mortgage Learning Center</h2>
-          <p className="section-description" style={{ textAlign: 'center', fontSize: '1.1rem', marginBottom: '3rem', color: '#000000' }}>Coming Soon</p>
+          <GeminiChatbot />
         </div>
         ) : currentView === 'rates' ? (
         <MortgageRatesTable />
