@@ -5,6 +5,7 @@ import MortgageRatesTable from './MortgageRatesTable'
 import Locations from './components/Locations'
 import WorldChat from './components/WorldChat'
 import GeminiChatbot from './components/GeminiChatbot'
+import io from 'socket.io-client'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 
@@ -366,6 +367,7 @@ function App() {
   const [currentFeedbackIndex, setCurrentFeedbackIndex] = useState(0)
   const [showFeedbackBody, setShowFeedbackBody] = useState(false)
   const [newsAndEvents, setNewsAndEvents] = useState([])
+  const [worldChatSocket, setWorldChatSocket] = useState(null)
 
   // Image mapping for news items - moved outside render for performance
   const newsImageMap = {
@@ -873,9 +875,17 @@ function App() {
     fetchAllFeedback()
     fetchTeamMembers()
     fetchNewsAndEvents()
+    
+    // Initialize socket connection for world chat
+    const socket = io(API_URL)
+    setWorldChatSocket(socket)
+    
     // Refresh every 5 minutes
     const interval = setInterval(fetchEconomicData, 5 * 60 * 1000)
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      socket.close()
+    }
   }, [])
 
   // Load user scenarios and appointments when user logs in
@@ -914,6 +924,38 @@ function App() {
     } catch (error) {
       console.error('Error fetching economic data:', error)
     }
+  }
+
+  // Share calculation results to world chat
+  const shareToWorldChat = () => {
+    if (!currentUser) {
+      alert('Please log in to share your calculation results to world chat')
+      setShowLoginModal(true)
+      return
+    }
+
+    if (!isVerified) {
+      alert('Please verify your email before sharing to world chat')
+      setShowVerificationModal(true)
+      return
+    }
+
+    if (!worldChatSocket || !results) {
+      alert('Unable to share. Please try again later.')
+      return
+    }
+
+    // Format the calculation results for sharing
+    const shareMessage = `🏠 Mortgage Calculation:\n💰 Property Price: $${parseFloat(propertyPrice).toLocaleString()}\n📥 Down Payment: ${downPaymentType === 'percentage' ? downPayment + '%' : '$' + parseFloat(downPayment).toLocaleString()}\n💵 Monthly Payment: $${parseFloat(results.monthlyPayment).toLocaleString()}\n💸 Total Interest: $${parseFloat(results.totalInterest).toLocaleString()}\n📅 Loan Term: ${loanTerm} years @ ${interestRate}%`
+
+    const messageData = {
+      username: currentUser,
+      message: shareMessage,
+      timestamp: new Date().toISOString()
+    }
+
+    worldChatSocket.emit('send_message', messageData)
+    alert('Calculation shared to World Chat! Check the chat to see your message.')
   }
 
   // Auto-calculate loan amount when property price or down payment changes
@@ -3061,6 +3103,14 @@ function App() {
               </button>
               <button className="action-btn pdf-btn" onClick={downloadPDF}>
                 📄 Download PDF
+              </button>
+              <button 
+                className="action-btn share-btn" 
+                onClick={shareToWorldChat}
+                disabled={!currentUser}
+                title={!currentUser ? 'Login required to share to world chat' : 'Share your calculation to World Chat'}
+              >
+                🌍 Share to World Chat
               </button>
             </>
           )}
