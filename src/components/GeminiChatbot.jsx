@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import './GeminiChatbot.css';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 const GeminiChatbot = () => {
   const [messages, setMessages] = useState([
@@ -12,13 +13,6 @@ const GeminiChatbot = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const genAI = useRef(null);
-
-  useEffect(() => {
-    // Initialize Gemini API
-    const API_KEY = 'AIzaSyCH6ScEN3PgH8m_JSJ92w3oCDDcT2amP3A';
-    genAI.current = new GoogleGenerativeAI(API_KEY);
-  }, []);
 
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive
@@ -36,44 +30,38 @@ const GeminiChatbot = () => {
     setIsLoading(true);
 
     try {
-      // Get Gemini model - using gemini-2.5-flash for free tier
-      const model = genAI.current.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      // Call backend API instead of directly using Gemini
+      const response = await fetch(`${API_URL}/api/chat/gemini`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          conversationHistory: messages.slice(-5)
+        })
+      });
 
-      // Create conversation context with mortgage-specific instructions
-      const conversationContext = `You are a helpful mortgage and real estate assistant. 
-You should provide accurate, friendly, and professional advice about mortgages, home buying, 
-interest rates, qualification requirements, and related financial topics. 
+      const data = await response.json();
 
-Formatting guidelines:
-- Use clear paragraphs separated by blank lines
-- Use bullet points (•) for lists
-- Use numbered lists (1., 2., 3.) for steps
-- Keep responses well-organized and easy to read
-- Use simple formatting without markdown symbols
-
-Previous conversation:
-${messages.slice(-5).map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`).join('\n')}
-
-User: ${userMessage}
-Assistant:`;
-
-      // Generate response
-      const result = await model.generateContent(conversationContext);
-      const response = await result.response;
-      const text = response.text();
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Failed to get response');
+      }
 
       // Add assistant message
-      setMessages(prev => [...prev, { role: 'assistant', content: text }]);
+      setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (error) {
       console.error('Error sending message:', error);
       let errorMessage = 'Sorry, I encountered an error. Please try again.';
-      if (error.message?.includes('API_KEY')) {
-        errorMessage = 'API key issue. Please contact support.';
+      
+      if (error.message?.includes('not configured')) {
+        errorMessage = 'Chatbot service is not configured. Please contact support.';
       } else if (error.message?.includes('quota')) {
         errorMessage = 'API quota exceeded. Please try again later.';
       } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
         errorMessage = 'Network error. Please check your connection and try again.';
       }
+      
       setMessages(prev => [...prev, {
         role: 'assistant',
         content: errorMessage

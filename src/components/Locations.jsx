@@ -26,7 +26,7 @@ function Locations() {
     },
     { 
       key: 'townhouses', 
-      label: 'Townhouses', 
+      label: 'Townhouses',
       description: 'Multi-level townhouse properties',
       icon: '🏘️'
     },
@@ -93,6 +93,11 @@ function Locations() {
       
       if (data.success) {
         setLocationData(data.location);
+        console.log('Location data loaded:', {
+          name: data.location.locationName,
+          hasMortgageInfo: !!data.location.mortgageInfo,
+          trustedResourcesCount: data.location.mortgageInfo?.trustedResources?.length || 0
+        });
       } else {
         setError('Failed to load location details');
       }

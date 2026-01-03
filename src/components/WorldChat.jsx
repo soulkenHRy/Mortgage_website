@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
+import DOMPurify from 'dompurify';
 import './WorldChat.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -99,10 +100,10 @@ function WorldChat({ user }) {
               className={`message ${msg.username === user?.username ? 'own-message' : 'other-message'}`}
             >
               <div className="message-header">
-                <span className="message-username">{msg.username}</span>
+                <span className="message-username">{DOMPurify.sanitize(msg.username)}</span>
                 <span className="message-time">{formatTime(msg.timestamp)}</span>
               </div>
-              <div className="message-content">{msg.message}</div>
+              <div className="message-content">{DOMPurify.sanitize(msg.message)}</div>
             </div>
           ))
         )}

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -9,6 +10,11 @@ const sgMail = require('@sendgrid/mail');
 const crypto = require('crypto');
 const http = require('http');
 const { Server } = require('socket.io');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const { body, param, validationResult } = require('express-validator');
+const mongoSanitize = require('express-mongo-sanitize');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const EconomicData = require('./models/EconomicData');
 const Feedback = require('./models/Feedback');
 const User = require('./models/User');
@@ -31,10 +37,20 @@ const io = new Server(server, {
 });
 const PORT = process.env.PORT || 3001;
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// Environment variable validation
+const requiredEnvVars = ['MONGODB_URI'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
-if (!process.env.JWT_SECRET && process.env.NODE_ENV === 'production') {
-  console.warn('⚠️  WARNING: Using default JWT_SECRET. Set JWT_SECRET in .env file!');
+if (missingEnvVars.length > 0 && process.env.NODE_ENV === 'production') {
+  console.error('❌ FATAL: Missing required environment variables:', missingEnvVars.join(', '));
+  process.exit(1);
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  console.error('❌ FATAL: JWT_SECRET is required. Set it in your .env file!');
+  process.exit(1);
 }
 
 // Sendgrid Email Configuration (HTTP-based, works on Railway)
@@ -111,6 +127,24 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      scriptSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      mediaSrc: ["'self'"],
+      frameSrc: ["'none'"],
+    },
+  },
+  crossOriginEmbedderPolicy: false,
+}));
+
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin) return callback(null, true);
@@ -127,8 +161,34 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(mongoSanitize()); // Prevent NoSQL injection
 app.set('trust proxy', 1);
+
+// Rate limiting configurations
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 login attempts per windowMs
+  message: 'Too many login attempts, please try again later.',
+  skipSuccessfulRequests: true,
+});
+
+const adminLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // Limit admin operations to 5 per hour
+  message: 'Too many refresh requests, please try again later.',
+});
+
+// Apply general rate limiter to all routes
+app.use(generalLimiter);
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -639,7 +699,7 @@ app.get('/api/economic-data/bond-yield', async (req, res) => {
 });
 
 // Manual trigger to refresh economic data (admin endpoint)
-app.post('/api/economic-data/refresh', async (req, res) => {
+app.post('/api/economic-data/refresh', adminLimiter, authenticateToken, async (req, res) => {
   try {
     console.log('Manual refresh triggered for economic data...');
     const result = await scrapeAndSaveEconomicData();
@@ -703,7 +763,7 @@ app.get('/api/mortgage-rates', async (req, res) => {
 });
 
 // Manual trigger to refresh mortgage rates (admin endpoint)
-app.post('/api/mortgage-rates/refresh', async (req, res) => {
+app.post('/api/mortgage-rates/refresh', adminLimiter, authenticateToken, async (req, res) => {
   try {
     console.log('Manual refresh triggered for mortgage rates...');
     const result = await scrapeAndSaveMortgageRates();
@@ -1025,10 +1085,14 @@ app.get('/api/locations', async (req, res) => {
 app.get('/api/locations/:locationName', async (req, res) => {
   try {
     const { locationName } = req.params;
-    console.log(`📍 Fetching location details for: ${locationName}`);
+    
+    // Sanitize input - only allow alphanumeric, spaces, and hyphens
+    const sanitizedName = locationName.replace(/[^a-zA-Z0-9\s-]/g, '');
+    
+    console.log(`📍 Fetching location details for: ${sanitizedName}`);
 
     const location = await LocationData.findOne({ 
-      locationName: { $regex: new RegExp(`^${locationName}$`, 'i') } 
+      locationName: { $regex: new RegExp(`^${sanitizedName}$`, 'i') } 
     });
 
     if (!location) {
@@ -1055,7 +1119,7 @@ app.get('/api/locations/:locationName', async (req, res) => {
 });
 
 // Manual refresh of location data (respects 7-day cooldown unless forced)
-app.post('/api/locations/refresh', async (req, res) => {
+app.post('/api/locations/refresh', adminLimiter, authenticateToken, async (req, res) => {
   try {
     const forceRefresh = req.body?.force === true || req.query?.force === 'true';
     
@@ -1166,7 +1230,7 @@ app.get('/api/feedback/user/:username', async (req, res) => {
 });
 
 // User registration/login endpoint
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', authLimiter, async (req, res) => {
   try {
     const { username, password, email, loginEmail } = req.body;
     
@@ -1185,7 +1249,8 @@ app.post('/api/login', async (req, res) => {
       const user = await User.findOne({ email: normalizedLoginEmail });
       
       if (!user) {
-        return res.status(401).json({ success: false, error: 'No account found with this email. Please sign up.' });
+        // Generic error - don't reveal if email exists
+        return res.status(401).json({ success: false, error: 'Invalid email or password.' });
       }
       
       // Check if account is locked
@@ -1193,7 +1258,7 @@ app.post('/api/login', async (req, res) => {
         const minutesLeft = Math.ceil((user.lockUntil - Date.now()) / 60000);
         return res.status(423).json({ 
           success: false, 
-          error: `Account is locked due to multiple failed login attempts. Please try again in ${minutesLeft} minutes.` 
+          error: `Account temporarily locked. Please try again in ${minutesLeft} minutes.` 
         });
       }
       
@@ -1207,13 +1272,14 @@ app.post('/api/login', async (req, res) => {
           await user.save();
           return res.status(423).json({ 
             success: false, 
-            error: 'Too many failed login attempts. Account locked for 30 minutes.' 
+            error: 'Too many failed attempts. Account locked for 30 minutes.' 
           });
         }
         await user.save();
+        // Generic error - don't reveal remaining attempts
         return res.status(401).json({ 
           success: false, 
-          error: `Invalid password. ${5 - user.loginAttempts} attempts remaining.` 
+          error: 'Invalid email or password.' 
         });
       }
       
@@ -1622,6 +1688,93 @@ app.get('/api/news-events', async (req, res) => {
   }
 });
 
+// ============================================
+// GEMINI CHATBOT ENDPOINT (SECURE)
+// ============================================
+
+// Gemini chat endpoint - API key stored securely on backend
+app.post('/api/chat/gemini', async (req, res) => {
+  try {
+    const { message, conversationHistory } = req.body;
+    
+    // Validate input
+    if (!message || typeof message !== 'string') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Message is required' 
+      });
+    }
+    
+    if (message.length > 5000) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Message too long (max 5000 characters)' 
+      });
+    }
+    
+    // Check if Gemini API key is configured
+    if (!process.env.GEMINI_API_KEY) {
+      return res.status(503).json({ 
+        success: false, 
+        error: 'Chatbot service not configured' 
+      });
+    }
+    
+    // Initialize Gemini AI
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+    
+    // Create conversation context
+    const recentHistory = conversationHistory 
+      ? conversationHistory.slice(-5).map(msg => 
+          `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+        ).join('\\n')
+      : '';
+    
+    const conversationContext = `You are a helpful mortgage and real estate assistant. 
+You should provide accurate, friendly, and professional advice about mortgages, home buying, 
+interest rates, qualification requirements, and related financial topics. 
+
+Formatting guidelines:
+- Use clear paragraphs separated by blank lines
+- Use bullet points (•) for lists
+- Use numbered lists (1., 2., 3.) for steps
+- Keep responses well-organized and easy to read
+- Use simple formatting without markdown symbols
+
+${recentHistory ? `Previous conversation:\\n${recentHistory}\\n` : ''}
+User: ${message}
+Assistant:`;
+    
+    // Generate response
+    const result = await model.generateContent(conversationContext);
+    const response = await result.response;
+    const text = response.text();
+    
+    res.json({
+      success: true,
+      response: text
+    });
+    
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    
+    let errorMessage = 'Sorry, I encountered an error. Please try again.';
+    if (error.message?.includes('API_KEY')) {
+      errorMessage = 'API key issue. Please contact support.';
+    } else if (error.message?.includes('quota')) {
+      errorMessage = 'API quota exceeded. Please try again later.';
+    } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+      errorMessage = 'Network error. Please check your connection and try again.';
+    }
+    
+    res.status(500).json({
+      success: false,
+      error: errorMessage
+    });
+  }
+});
+
 // World Chat - In-memory storage for last 20 messages
 let chatMessages = [];
 const MAX_MESSAGES = 20;
@@ -1637,10 +1790,18 @@ io.on('connection', (socket) => {
   socket.on('send_message', (data) => {
     const { username, message, timestamp } = data;
     
+    // Sanitize inputs to prevent XSS
+    const sanitizedUsername = String(username || 'Anonymous').replace(/[<>\"'&]/g, '').substring(0, 50);
+    const sanitizedMessage = String(message || '').replace(/[<>\"'&]/g, '').substring(0, 500);
+    
+    if (!sanitizedMessage.trim()) {
+      return; // Don't broadcast empty messages
+    }
+    
     const chatMessage = {
       id: Date.now() + Math.random(), // Simple unique ID
-      username,
-      message,
+      username: sanitizedUsername,
+      message: sanitizedMessage,
       timestamp: timestamp || new Date().toISOString()
     };
     
