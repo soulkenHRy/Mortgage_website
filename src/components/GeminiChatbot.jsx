@@ -43,7 +43,13 @@ const GeminiChatbot = () => {
       const conversationContext = `You are a helpful mortgage and real estate assistant. 
 You should provide accurate, friendly, and professional advice about mortgages, home buying, 
 interest rates, qualification requirements, and related financial topics. 
-Keep responses clear, concise, and informative. Do not use markdown formatting.
+
+Formatting guidelines:
+- Use clear paragraphs separated by blank lines
+- Use bullet points (•) for lists
+- Use numbered lists (1., 2., 3.) for steps
+- Keep responses well-organized and easy to read
+- Use simple formatting without markdown symbols
 
 Previous conversation:
 ${messages.slice(-5).map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`).join('\n')}
@@ -158,7 +164,14 @@ Assistant:`;
               )}
             </div>
             <div className="message-content">
-              <div className="message-text">{message.content}</div>
+              <div className="message-text">
+                {message.content.split('\n').map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    {i < message.content.split('\n').length - 1 && <br />}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         ))}

@@ -192,9 +192,28 @@
   padding: 16px 20px;
   border-radius: 18px;
   font-size: 1.05rem;
-  line-height: 1.6;
+  line-height: 1.8;
   word-wrap: break-word;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  white-space: pre-wrap;
+}
+
+.message-text strong {
+  font-weight: 600;
+  color: inherit;
+}
+
+.message-text p {
+  margin: 0.5em 0;
+}
+
+.message-text ul, .message-text ol {
+  margin: 0.8em 0;
+  padding-left: 1.5em;
+}
+
+.message-text li {
+  margin: 0.3em 0;
 }
 
 .message.user .message-text {
