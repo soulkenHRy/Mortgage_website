@@ -66,6 +66,7 @@ const allowedOrigins = [
   'http://127.0.0.1:5174',
   'https://mortgage-website-rho.vercel.app',
   'https://mortgage-website-nkqsyfxir-shakens-projects-5f9cdaf4.vercel.app',
+  'https://webbap.duckdns.org',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
