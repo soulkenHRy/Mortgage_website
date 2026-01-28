@@ -26,22 +26,12 @@ exports.chatWithAI = async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Gemini API error:', error);
-    
-    let errorMessage = 'Sorry, I encountered an error. Please try again.';
-    if (error.message?.includes('not configured')) {
-      errorMessage = 'Chatbot service not configured';
-    } else if (error.message?.includes('API_KEY')) {
-      errorMessage = 'API key issue. Please contact support.';
-    } else if (error.message?.includes('quota')) {
-      errorMessage = 'API quota exceeded. Please try again later.';
-    } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
-      errorMessage = 'Network error. Please check your connection and try again.';
-    }
+    console.error('Gemini API error:', error.message);
+    console.error('Full error:', JSON.stringify(error, null, 2));
     
     res.status(500).json({
       success: false,
-      error: errorMessage
+      error: `AI Error: ${error.message || 'Unknown error'}`
     });
   }
 };

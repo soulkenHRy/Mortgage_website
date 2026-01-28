@@ -52,15 +52,8 @@ const GeminiChatbot = () => {
       setMessages(prev => [...prev, { role: 'assistant', content: data.response }]);
     } catch (error) {
       console.error('Error sending message:', error);
-      let errorMessage = 'Sorry, I encountered an error. Please try again.';
-      
-      if (error.message?.includes('not configured')) {
-        errorMessage = 'Chatbot service is not configured. Please contact support.';
-      } else if (error.message?.includes('quota')) {
-        errorMessage = 'API quota exceeded. Please try again later.';
-      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
-        errorMessage = 'Network error. Please check your connection and try again.';
-      }
+      // Show the actual error for debugging
+      const errorMessage = error.message || 'Sorry, I encountered an error. Please try again.';
       
       setMessages(prev => [...prev, {
         role: 'assistant',
