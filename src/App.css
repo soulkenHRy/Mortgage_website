@@ -6408,6 +6408,90 @@ img {
   line-height: 1.5;
 }
 
+/* Lead Capture Results Styles */
+.lead-capture-results {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(249, 115, 22, 0.05) 100%);
+  border: 2px solid #3b82f6;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.success-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.success-icon {
+  width: 48px;
+  height: 48px;
+  color: #16a34a;
+  stroke-width: 3;
+}
+
+.success-message h3 {
+  margin: 0;
+  color: #000000;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.success-message p {
+  margin: 0;
+  color: #666666;
+  font-size: 0.95rem;
+}
+
+.lead-capture-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-left: 4px solid #f97316;
+  border-radius: 8px;
+}
+
+.lead-capture-message p {
+  margin: 0;
+  color: #000000;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.lead-capture-message p strong {
+  color: #f97316;
+  font-weight: 700;
+}
+
+.visit-specialist-btn {
+  padding: 0.875rem 2rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #f97316 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.visit-specialist-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.visit-specialist-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+}
+
 /* Responsive adjustments for qualifier */
 @media (max-width: 1200px) {
   .default-layout {

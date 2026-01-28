@@ -46,7 +46,7 @@ const preloadAssets = () => {
 
 preloadAssets();
 
-function MortgageQualifier({ economicData }) {
+function MortgageQualifier({ economicData, onTeamClick }) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -55,18 +55,16 @@ function MortgageQualifier({ economicData }) {
     propertyState: '',
     annualIncome: '',
     employmentStatus: 'employed',
-    otherIncome: '',
     monthlyDebts: '',
     creditRange: 'good',
     homePurchasePrice: '',
     downPayment: '',
-    loanType: 'conventional',
-    loanTerm: '30',
-    firstTimeBuyer: false,
     purchaseTimeline: '3-6'
   })
   
   const [results, setResults] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -76,60 +74,50 @@ function MortgageQualifier({ economicData }) {
     }))
   }
   
-  const calculateQualification = () => {
-    const income = parseFloat(formData.annualIncome) || 0
-    const otherIncome = parseFloat(formData.otherIncome) || 0
-    const totalIncome = income + otherIncome
-    const monthlyIncome = totalIncome / 12
-    const monthlyDebts = parseFloat(formData.monthlyDebts) || 0
-    const downPayment = parseFloat(formData.downPayment) || 0
-    const purchasePrice = parseFloat(formData.homePurchasePrice) || 0
+  const submitLead = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
     
-    // Interest rate based on credit
-    const interestRates = {
-      excellent: 6.5,
-      good: 7.0,
-      fair: 7.5,
-      poor: 8.5
+    try {
+      const response = await fetch(`${API_URL}/api/leads/capture`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          propertyState: formData.propertyState,
+          annualIncome: formData.annualIncome,
+          employmentStatus: formData.employmentStatus,
+          monthlyDebts: formData.monthlyDebts,
+          creditRange: formData.creditRange,
+          homePurchasePrice: formData.homePurchasePrice,
+          downPayment: formData.downPayment,
+          purchaseTimeline: formData.purchaseTimeline,
+          timestamp: new Date().toISOString()
+        })
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit lead')
+      }
+      
+      setResults({
+        success: true,
+        firstName: formData.firstName
+      })
+    } catch (err) {
+      setError(err.message)
+      alert('Error submitting lead. Please try again.')
+    } finally {
+      setLoading(false)
     }
-    const rate = interestRates[formData.creditRange] || 7.0
-    const monthlyRate = rate / 100 / 12
-    const numPayments = parseInt(formData.loanTerm) * 12
-    
-    // Calculate DTI (should be below 43%)
-    const maxMonthlyPayment = (monthlyIncome * 0.43) - monthlyDebts
-    
-    // Calculate max loan based on payment
-    const maxLoan = maxMonthlyPayment * ((Math.pow(1 + monthlyRate, numPayments) - 1) / (monthlyRate * Math.pow(1 + monthlyRate, numPayments)))
-    
-    // Calculate max home price (loan + down payment)
-    const maxHomePrice = maxLoan + downPayment
-    
-    // Calculate actual loan if purchase price specified
-    const loanAmount = purchasePrice > 0 ? purchasePrice - downPayment : maxLoan
-    
-    // Calculate monthly payment
-    const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1)
-    
-    // Calculate DTI ratio
-    const dti = ((monthlyPayment + monthlyDebts) / monthlyIncome * 100).toFixed(1)
-    
-    // Determine eligibility
-    const eligible = dti <= 43 && downPayment >= (purchasePrice * 0.03)
-    
-    // Down payment percentage
-    const downPaymentPercent = purchasePrice > 0 ? (downPayment / purchasePrice * 100).toFixed(1) : 0
-    
-    setResults({
-      maxLoan: maxLoan.toFixed(0),
-      maxHomePrice: maxHomePrice.toFixed(0),
-      eligible: eligible,
-      monthlyPayment: monthlyPayment.toFixed(2),
-      dti: dti,
-      downPaymentPercent: downPaymentPercent,
-      interestRate: rate,
-      recommendation: eligible ? 'You appear to be pre-qualified! Proceed to formal pre-approval.' : 'Consider reducing debt or increasing down payment before applying.'
-    })
   }
   
   return (
@@ -193,9 +181,9 @@ function MortgageQualifier({ economicData }) {
 
       <div className="qualifier-box">
         <h2 className="qualifier-title">Mortgage Pre-Qualification</h2>
-        <p className="qualifier-subtitle">Get pre-qualified in minutes</p>
+        <p className="qualifier-subtitle">Get in touch - a specialist will contact you</p>
         
-        <form className="qualifier-form" onSubmit={(e) => { e.preventDefault(); calculateQualification(); }}>
+        <form className="qualifier-form" onSubmit={submitLead}>
         {/* Personal Information */}
         <div className="qualifier-section">
           <h3>Personal Information</h3>
@@ -217,7 +205,6 @@ function MortgageQualifier({ economicData }) {
             <option value="self-employed">Self-Employed</option>
             <option value="retired">Retired</option>
           </select>
-          <input type="number" name="otherIncome" placeholder="Other Income (Optional)" value={formData.otherIncome} onChange={handleInputChange} />
           <input type="number" name="monthlyDebts" placeholder="Total Monthly Debts ($)" value={formData.monthlyDebts} onChange={handleInputChange} required />
         </div>
         
@@ -237,25 +224,11 @@ function MortgageQualifier({ economicData }) {
           <h3>Loan Details</h3>
           <input type="number" name="homePurchasePrice" placeholder="Estimated Home Purchase Price ($)" value={formData.homePurchasePrice} onChange={handleInputChange} required />
           <input type="number" name="downPayment" placeholder="Down Payment Amount ($)" value={formData.downPayment} onChange={handleInputChange} required />
-          <select name="loanType" value={formData.loanType} onChange={handleInputChange}>
-            <option value="conventional">Conventional</option>
-            <option value="fha">FHA</option>
-            <option value="va">VA</option>
-            <option value="usda">USDA</option>
-          </select>
-          <select name="loanTerm" value={formData.loanTerm} onChange={handleInputChange}>
-            <option value="15">15-Year</option>
-            <option value="30">30-Year</option>
-          </select>
         </div>
         
-        {/* Borrower Profile */}
+        {/* Purchase Timeline */}
         <div className="qualifier-section">
-          <h3>Borrower Profile</h3>
-          <label className="qualifier-checkbox">
-            <input type="checkbox" name="firstTimeBuyer" checked={formData.firstTimeBuyer} onChange={handleInputChange} />
-            First-time homebuyer
-          </label>
+          <h3>Purchase Timeline</h3>
           <select name="purchaseTimeline" value={formData.purchaseTimeline} onChange={handleInputChange}>
             <option value="1-3">1-3 months</option>
             <option value="3-6">3-6 months</option>
@@ -264,49 +237,36 @@ function MortgageQualifier({ economicData }) {
           </select>
         </div>
         
-        <button type="submit" className="qualifier-submit-btn">Get Pre-Qualified</button>
+        <button type="submit" className="qualifier-submit-btn" disabled={loading}>
+          {loading ? 'Submitting...' : 'Get Started'}
+        </button>
       </form>
       
-      {/* Results */}
+      {/* Lead Capture Confirmation */}
       {results && (
-        <div className="qualifier-results">
-          <h3 className={results.eligible ? 'eligible' : 'needs-review'}>
-            {results.eligible ? '✓ Pre-Qualification Eligible' : '⚠ Needs Review'}
-          </h3>
-          
-          <div className="result-grid">
-            <div className="result-item">
-              <span className="result-label">Maximum Loan Amount</span>
-              <span className="result-value">${parseInt(results.maxLoan).toLocaleString()}</span>
-            </div>
-            <div className="result-item">
-              <span className="result-label">Maximum Home Price</span>
-              <span className="result-value">${parseInt(results.maxHomePrice).toLocaleString()}</span>
-            </div>
-            <div className="result-item">
-              <span className="result-label">Est. Monthly Payment</span>
-              <span className="result-value">${parseFloat(results.monthlyPayment).toLocaleString()}</span>
-            </div>
-            <div className="result-item">
-              <span className="result-label">Debt-to-Income Ratio</span>
-              <span className="result-value">{results.dti}%</span>
-            </div>
-            <div className="result-item">
-              <span className="result-label">Down Payment</span>
-              <span className="result-value">{results.downPaymentPercent}%</span>
-            </div>
-            <div className="result-item">
-              <span className="result-label">Est. Interest Rate</span>
-              <span className="result-value">{results.interestRate}%</span>
-            </div>
+        <div className="qualifier-results lead-capture-results">
+          <div className="success-message">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="success-icon">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <h3>Thank you, {results.firstName}!</h3>
+            <p>Your information has been received.</p>
           </div>
           
-          <div className="result-recommendation">
-            <p><strong>Next Steps:</strong> {results.recommendation}</p>
+          <div className="lead-capture-message">
+            <p><strong>A mortgage specialist will contact you to discuss your actual qualification.</strong></p>
+            <p>We'll review your financial information and provide personalized guidance on your mortgage options.</p>
           </div>
+          
+          <button 
+            className="visit-specialist-btn" 
+            onClick={() => onTeamClick && onTeamClick()}
+          >
+            Visit Mortgage Specialist
+          </button>
           
           <div className="result-disclaimer">
-            <p><em>Disclaimer: This is an estimate only and not a formal approval. Actual qualification requires formal verification of income, credit, and assets.</em></p>
+            <p><em>We respect your privacy. Your information is secure and will only be used to provide mortgage consultation services.</em></p>
           </div>
         </div>
       )}
@@ -2905,7 +2865,7 @@ function App() {
           
           {/* Mortgage Qualifier Calculator */}
           <div className="qualifier-container">
-            <MortgageQualifier economicData={economicData} />
+            <MortgageQualifier economicData={economicData} onTeamClick={() => setCurrentView('team')} />
           </div>
         </div>
         </div>

@@ -15,6 +15,7 @@ const MortgageRate = require('./models/MortgageRate');
 const TeamMember = require('./models/TeamMember');
 const Appointment = require('./models/Appointment');
 const LocationData = require('./models/LocationData');
+const Lead = require('./models/Lead');
 
 // Services
 const { scrapeAndSaveEconomicData } = require('./scrapers/economicDataScraper');
@@ -30,6 +31,7 @@ const authRoutes = require('./routes/auth');
 const locationRoutes = require('./routes/locations');
 const feedbackRoutes = require('./routes/feedback');
 const chatRoutes = require('./routes/chat');
+const leadsRoutes = require('./routes/leads');
 
 // Initialize
 const app = express();
@@ -157,6 +159,7 @@ app.use('/api', authRoutes);
 app.use('/api/locations', locationRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/leads', leadsRoutes);
 
 // ==========================================
 // MORTGAGE CALCULATOR
