@@ -359,3 +359,58 @@
     padding: 15px;
   }
 }
+/* AI Message Formatting */
+.message.assistant .message-text {
+  line-height: 1.6;
+}
+
+.ai-header {
+  font-weight: 600;
+  color: #2d3748;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-size: 1.05rem;
+}
+
+.ai-header:first-child {
+  margin-top: 0;
+}
+
+.ai-bullet {
+  display: flex;
+  gap: 10px;
+  margin: 6px 0;
+  padding-left: 4px;
+}
+
+.ai-bullet .bullet {
+  color: #667eea;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.ai-sub-bullet {
+  display: flex;
+  gap: 10px;
+  margin: 4px 0 4px 24px;
+  font-size: 0.95rem;
+  color: #4a5568;
+}
+
+.ai-sub-bullet .bullet {
+  color: #a0aec0;
+  flex-shrink: 0;
+}
+
+.ai-text {
+  margin: 4px 0;
+}
+
+.ai-paragraph-break {
+  height: 12px;
+}
+
+.message.assistant .message-text strong {
+  color: #4a5568;
+  font-weight: 600;
+}

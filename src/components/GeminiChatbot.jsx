@@ -92,6 +92,67 @@ const GeminiChatbot = () => {
     setInput(question);
   };
 
+  // Format message with markdown-like syntax
+  const formatMessage = (content) => {
+    // Split into lines
+    const lines = content.split('\n');
+    
+    return lines.map((line, i) => {
+      // Check if line is a header (starts with **)
+      const isHeader = line.match(/^\*\*(.+?)\*\*:?$/);
+      
+      // Check if line is a bullet point
+      const isBullet = line.match(/^(\s*)•\s+(.+)$/);
+      const isSubBullet = line.match(/^\s{4,}•\s+(.+)$/);
+      
+      // Process bold text within line
+      const processBold = (text) => {
+        const parts = text.split(/\*\*(.+?)\*\*/g);
+        return parts.map((part, idx) => 
+          idx % 2 === 1 ? <strong key={idx}>{part}</strong> : part
+        );
+      };
+      
+      if (isHeader) {
+        return (
+          <div key={i} className="ai-header">
+            {processBold(line)}
+          </div>
+        );
+      }
+      
+      if (isSubBullet) {
+        return (
+          <div key={i} className="ai-sub-bullet">
+            <span className="bullet">◦</span>
+            <span>{processBold(isSubBullet[1])}</span>
+          </div>
+        );
+      }
+      
+      if (isBullet) {
+        return (
+          <div key={i} className="ai-bullet">
+            <span className="bullet">•</span>
+            <span>{processBold(isBullet[2])}</span>
+          </div>
+        );
+      }
+      
+      // Empty line = paragraph break
+      if (line.trim() === '') {
+        return <div key={i} className="ai-paragraph-break" />;
+      }
+      
+      // Regular text
+      return (
+        <div key={i} className="ai-text">
+          {processBold(line)}
+        </div>
+      );
+    });
+  };
+
   return (
     <div className="gemini-chatbot-container">
       <div className="chatbot-header">
@@ -146,12 +207,7 @@ const GeminiChatbot = () => {
             </div>
             <div className="message-content">
               <div className="message-text">
-                {message.content.split('\n').map((line, i) => (
-                  <span key={i}>
-                    {line}
-                    {i < message.content.split('\n').length - 1 && <br />}
-                  </span>
-                ))}
+                {message.role === 'assistant' ? formatMessage(message.content) : message.content}
               </div>
             </div>
           </div>
