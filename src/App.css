@@ -6195,26 +6195,7 @@ img {
   border-radius: 24px;
   padding: 2rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  max-height: 85vh;
-  overflow-y: auto;
-}
-
-.qualifier-box::-webkit-scrollbar {
-  width: 8px;
-}
-
-.qualifier-box::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-}
-
-.qualifier-box::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-}
-
-.qualifier-box::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  /* Removed max-height and overflow to prevent double scrollbars */
 }
 
 .qualifier-title {
