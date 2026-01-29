@@ -19,6 +19,7 @@ router.post('/capture', generalLimiter, async (req, res) => {
       homePurchasePrice,
       downPayment,
       purchaseTimeline,
+      preQualificationStatus,
       timestamp
     } = req.body;
 
@@ -58,6 +59,7 @@ router.post('/capture', generalLimiter, async (req, res) => {
       homePurchasePrice,
       downPayment,
       purchaseTimeline,
+      preQualificationStatus: preQualificationStatus || 'Pending',
       status: 'new'
     });
 

@@ -58,6 +58,11 @@ const leadSchema = new mongoose.Schema({
     enum: ['1-3', '3-6', '6-12', '12+'],
     default: '3-6'
   },
+  preQualificationStatus: {
+    type: String,
+    enum: ['Qualified', 'Not Qualified', 'Pending'],
+    default: 'Pending'
+  },
   status: {
     type: String,
     enum: ['new', 'contacted', 'qualified', 'closed', 'lost'],
