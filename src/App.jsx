@@ -74,10 +74,64 @@ function MortgageQualifier({ economicData, onTeamClick }) {
     }))
   }
   
+  const calculatePreQualification = () => {
+    // Calculate key financial metrics
+    const monthlyIncome = parseFloat(formData.annualIncome) / 12
+    const totalMonthlyDebts = parseFloat(formData.monthlyDebts)
+    const loanAmount = parseFloat(formData.homePurchasePrice) - parseFloat(formData.downPayment)
+    const downPaymentPercent = (parseFloat(formData.downPayment) / parseFloat(formData.homePurchasePrice)) * 100
+    
+    // Estimate monthly mortgage payment (using ~6% rate and 25 year amortization as estimate)
+    const monthlyRate = 0.06 / 12
+    const numberOfPayments = 25 * 12
+    const estimatedMortgagePayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1)
+    
+    // Calculate Debt-to-Income Ratios
+    const gds = ((estimatedMortgagePayment + (estimatedMortgagePayment * 0.3)) / monthlyIncome) * 100 // GDS includes property taxes & heating (estimated at 30% of mortgage)
+    const tds = ((estimatedMortgagePayment + (estimatedMortgagePayment * 0.3) + totalMonthlyDebts) / monthlyIncome) * 100
+    
+    // Credit score minimums
+    const creditScoreMap = {
+      'excellent': 740,
+      'good': 700,
+      'fair': 620,
+      'poor': 500
+    }
+    const creditScore = creditScoreMap[formData.creditRange] || 700
+    
+    // Qualification criteria
+    const qualificationChecks = {
+      creditScore: creditScore >= 600, // Minimum credit score
+      downPayment: downPaymentPercent >= 5, // Minimum 5% down payment
+      gds: gds <= 39, // Maximum 39% GDS ratio
+      tds: tds <= 44, // Maximum 44% TDS ratio
+      income: monthlyIncome >= estimatedMortgagePayment * 2 // Basic income sufficiency
+    }
+    
+    const isPreQualified = Object.values(qualificationChecks).every(check => check)
+    
+    return {
+      isPreQualified,
+      qualificationChecks,
+      metrics: {
+        monthlyIncome: monthlyIncome.toFixed(2),
+        estimatedMortgagePayment: estimatedMortgagePayment.toFixed(2),
+        loanAmount: loanAmount.toFixed(2),
+        downPaymentPercent: downPaymentPercent.toFixed(1),
+        gds: gds.toFixed(1),
+        tds: tds.toFixed(1),
+        creditScore
+      }
+    }
+  }
+  
   const submitLead = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    
+    // Calculate pre-qualification before submitting
+    const qualificationResult = calculatePreQualification()
     
     try {
       const response = await fetch(`${API_URL}/api/leads/capture`, {
@@ -98,6 +152,7 @@ function MortgageQualifier({ economicData, onTeamClick }) {
           homePurchasePrice: formData.homePurchasePrice,
           downPayment: formData.downPayment,
           purchaseTimeline: formData.purchaseTimeline,
+          preQualificationStatus: qualificationResult.isPreQualified ? 'Qualified' : 'Not Qualified',
           timestamp: new Date().toISOString()
         })
       })
@@ -110,7 +165,8 @@ function MortgageQualifier({ economicData, onTeamClick }) {
       
       setResults({
         success: true,
-        firstName: formData.firstName
+        firstName: formData.firstName,
+        ...qualificationResult
       })
     } catch (err) {
       setError(err.message)
@@ -242,31 +298,96 @@ function MortgageQualifier({ economicData, onTeamClick }) {
         </button>
       </form>
       
-      {/* Lead Capture Confirmation */}
+      {/* Pre-Qualification Results */}
       {results && (
-        <div className="qualifier-results lead-capture-results">
+        <div className={`qualifier-results ${results.isPreQualified ? 'qualified' : 'not-qualified'}`}>
           <div className="success-message">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="success-icon">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
             <h3>Thank you, {results.firstName}!</h3>
-            <p>Your information has been received.</p>
+            <p>Your pre-qualification assessment is complete.</p>
           </div>
           
-          <div className="lead-capture-message">
-            <p><strong>A mortgage specialist will contact you to discuss your actual qualification.</strong></p>
-            <p>We'll review your financial information and provide personalized guidance on your mortgage options.</p>
+          <div className={`qualification-status ${results.isPreQualified ? 'status-qualified' : 'status-not-qualified'}`}>
+            {results.isPreQualified ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="status-icon">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+                <h3>You Are Pre-Qualified!</h3>
+                <p>Based on the information provided, you meet the initial requirements for mortgage pre-qualification.</p>
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="status-icon">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <h3>Additional Review Needed</h3>
+                <p>Based on the information provided, some aspects require further discussion with a mortgage specialist.</p>
+              </>
+            )}
+          </div>
+          
+          <div className="qualification-details">
+            <h4>Assessment Details</h4>
+            <div className="details-grid">
+              <div className="detail-item">
+                <span className="detail-label">Estimated Monthly Payment</span>
+                <span className="detail-value">${results.metrics.estimatedMortgagePayment}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Loan Amount</span>
+                <span className="detail-value">${parseFloat(results.metrics.loanAmount).toLocaleString()}</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">Down Payment</span>
+                <span className="detail-value">{results.metrics.downPaymentPercent}%</span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">GDS Ratio</span>
+                <span className={`detail-value ${results.qualificationChecks.gds ? 'check-pass' : 'check-fail'}`}>
+                  {results.metrics.gds}% {results.qualificationChecks.gds ? '✓' : '✗'}
+                </span>
+              </div>
+              <div className="detail-item">
+                <span className="detail-label">TDS Ratio</span>
+                <span className={`detail-value ${results.qualificationChecks.tds ? 'check-pass' : 'check-fail'}`}>
+                  {results.metrics.tds}% {results.qualificationChecks.tds ? '✓' : '✗'}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="specialist-recommendation">
+            <p><strong>Next Step: Speak with a Mortgage Specialist</strong></p>
+            <p>This is a preliminary assessment. A mortgage specialist will review your complete financial profile, verify your information, and help you find the best mortgage options available.</p>
           </div>
           
           <button 
-            className="visit-specialist-btn" 
+            className="specialist-cta-btn" 
             onClick={() => onTeamClick && onTeamClick()}
           >
-            Visit Mortgage Specialist
+            <span className="btn-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </span>
+            <span className="btn-content">
+              <span className="btn-title">Connect With Our Specialists</span>
+              <span className="btn-subtitle">Get personalized mortgage guidance</span>
+            </span>
+            <span className="btn-arrow">→</span>
           </button>
           
           <div className="result-disclaimer">
-            <p><em>We respect your privacy. Your information is secure and will only be used to provide mortgage consultation services.</em></p>
+            <p><em>This pre-qualification is based on the information provided and is not a guarantee of loan approval. Final approval is subject to verification of income, employment, credit, and property appraisal.</em></p>
           </div>
         </div>
       )}
