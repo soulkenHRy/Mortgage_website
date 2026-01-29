@@ -125,55 +125,24 @@ function MortgageQualifier({ economicData, onTeamClick }) {
     }
   }
   
-  const submitLead = async (e) => {
+  const submitLead = (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     
-    // Calculate pre-qualification before submitting
-    const qualificationResult = calculatePreQualification()
-    
-    try {
-      const response = await fetch(`${API_URL}/api/leads/capture`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          propertyState: formData.propertyState,
-          annualIncome: formData.annualIncome,
-          employmentStatus: formData.employmentStatus,
-          monthlyDebts: formData.monthlyDebts,
-          creditRange: formData.creditRange,
-          homePurchasePrice: formData.homePurchasePrice,
-          downPayment: formData.downPayment,
-          purchaseTimeline: formData.purchaseTimeline,
-          preQualificationStatus: qualificationResult.isPreQualified ? 'Qualified' : 'Not Qualified',
-          timestamp: new Date().toISOString()
-        })
-      })
-      
-      const data = await response.json()
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit lead')
-      }
+    // Simulate a brief loading state for better UX
+    setTimeout(() => {
+      // Calculate pre-qualification (all frontend, no backend call)
+      const qualificationResult = calculatePreQualification()
       
       setResults({
         success: true,
         firstName: formData.firstName,
         ...qualificationResult
       })
-    } catch (err) {
-      setError(err.message)
-      alert('Error submitting lead. Please try again.')
-    } finally {
+      
       setLoading(false)
-    }
+    }, 500)
   }
   
   return (
