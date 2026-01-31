@@ -32,6 +32,8 @@ const locationRoutes = require('./routes/locations');
 const feedbackRoutes = require('./routes/feedback');
 const chatRoutes = require('./routes/chat');
 const leadsRoutes = require('./routes/leads');
+const activityRoutes = require('./routes/activity');
+const apiKeyRoutes = require('./routes/apiKeys');
 
 // Initialize
 const app = express();
@@ -160,6 +162,8 @@ app.use('/api/locations', locationRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/leads', leadsRoutes);
+app.use('/api/activity', activityRoutes);
+app.use('/api/keys', apiKeyRoutes);
 
 // ==========================================
 // MORTGAGE CALCULATOR

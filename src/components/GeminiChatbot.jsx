@@ -3,7 +3,7 @@ import './GeminiChatbot.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
-const GeminiChatbot = () => {
+const GeminiChatbot = ({ currentUser, isVerified }) => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',

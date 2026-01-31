@@ -46,7 +46,7 @@ const preloadAssets = () => {
 
 preloadAssets();
 
-function MortgageQualifier({ economicData, onTeamClick }) {
+function MortgageQualifier({ economicData, onTeamClick, currentUser, isVerified }) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -125,24 +125,21 @@ function MortgageQualifier({ economicData, onTeamClick }) {
     }
   }
   
-  const submitLead = (e) => {
+  const submitLead = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     
-    // Simulate a brief loading state for better UX
-    setTimeout(() => {
-      // Calculate pre-qualification (all frontend, no backend call)
-      const qualificationResult = calculatePreQualification()
-      
-      setResults({
-        success: true,
-        firstName: formData.firstName,
-        ...qualificationResult
-      })
-      
-      setLoading(false)
-    }, 500)
+    // Calculate pre-qualification (all frontend, no backend call)
+    const qualificationResult = calculatePreQualification()
+    
+    setResults({
+      success: true,
+      firstName: formData.firstName,
+      ...qualificationResult
+    })
+    
+    setLoading(false)
   }
   
   return (
@@ -2955,7 +2952,12 @@ function App() {
           
           {/* Mortgage Qualifier Calculator */}
           <div className="qualifier-container">
-            <MortgageQualifier economicData={economicData} onTeamClick={() => setCurrentView('team')} />
+            <MortgageQualifier 
+              economicData={economicData} 
+              onTeamClick={() => setCurrentView('team')}
+              currentUser={currentUser}
+              isVerified={isVerified}
+            />
           </div>
         </div>
         </div>
@@ -3625,7 +3627,7 @@ function App() {
         </div>
         ) : currentView === 'educational-content' ? (
         <div className="feature-box educational-content-box">
-          <GeminiChatbot />
+          <GeminiChatbot currentUser={currentUser} isVerified={isVerified} />
         </div>
         ) : currentView === 'rates' ? (
         <MortgageRatesTable />
