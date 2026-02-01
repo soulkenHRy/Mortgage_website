@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Lead = require('../models/Lead');
+const UserActivity = require('../models/UserActivity');
 const { generalLimiter } = require('../middleware/rateLimiting');
 
 // Capture a new lead (POST /api/leads/capture)
@@ -20,7 +21,8 @@ router.post('/capture', generalLimiter, async (req, res) => {
       downPayment,
       purchaseTimeline,
       preQualificationStatus,
-      timestamp
+      timestamp,
+      username  // Optional: logged-in user's username
     } = req.body;
 
     // Validation
@@ -65,6 +67,26 @@ router.post('/capture', generalLimiter, async (req, res) => {
 
     // Save lead
     const savedLead = await lead.save();
+
+    // Track pre-qualification activity (non-blocking)
+    const trackUsername = username || `${firstName.toLowerCase()}_${lastName.toLowerCase()}`;
+    UserActivity.create({
+      username: trackUsername.toLowerCase(),
+      email: email.toLowerCase(),
+      activityType: 'prequalification',
+      data: {
+        leadId: savedLead._id,
+        propertyState,
+        annualIncome,
+        employmentStatus,
+        monthlyDebts,
+        creditRange,
+        homePurchasePrice,
+        downPayment,
+        purchaseTimeline,
+        preQualificationStatus: preQualificationStatus || 'Pending'
+      }
+    }).catch(err => console.error('Pre-qualification activity tracking error:', err.message));
 
     // Send success response
     res.status(201).json({

@@ -1075,7 +1075,10 @@ function App() {
           loanTerm,
           propertyTax,
           insurance,
-          hoaFees
+          hoaFees,
+          // Include user info for activity tracking (if logged in)
+          username: currentUser || undefined,
+          email: localStorage.getItem('userEmail') || undefined
         })
       })
 

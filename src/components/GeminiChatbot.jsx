@@ -38,7 +38,10 @@ const GeminiChatbot = ({ currentUser, isVerified }) => {
         },
         body: JSON.stringify({
           message: userMessage,
-          conversationHistory: messages.slice(-5)
+          conversationHistory: messages.slice(-5),
+          // Include user info for activity tracking (if logged in)
+          username: currentUser || undefined,
+          email: localStorage.getItem('userEmail') || undefined
         })
       });
 

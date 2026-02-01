@@ -16,6 +16,7 @@ const TeamMember = require('./models/TeamMember');
 const Appointment = require('./models/Appointment');
 const LocationData = require('./models/LocationData');
 const Lead = require('./models/Lead');
+const UserActivity = require('./models/UserActivity');
 
 // Services
 const { scrapeAndSaveEconomicData } = require('./scrapers/economicDataScraper');
@@ -168,9 +169,9 @@ app.use('/api/keys', apiKeyRoutes);
 // ==========================================
 // MORTGAGE CALCULATOR
 // ==========================================
-app.post('/api/calculate-mortgage', (req, res) => {
+app.post('/api/calculate-mortgage', async (req, res) => {
   try {
-    const { propertyPrice, downPayment, loanAmount, interestRate, loanTerm, propertyTax, insurance, hoaFees } = req.body;
+    const { propertyPrice, downPayment, loanAmount, interestRate, loanTerm, propertyTax, insurance, hoaFees, username, email } = req.body;
 
     if (!interestRate || !loanTerm) {
       return res.status(400).json({ error: 'Interest rate and loan term are required' });
@@ -215,21 +216,38 @@ app.post('/api/calculate-mortgage', (req, res) => {
       });
     }
 
-    res.json({
-      success: true,
-      results: {
-        monthlyPayment: monthlyPayment.toFixed(2),
-        totalMonthlyPayment: totalMonthlyPayment.toFixed(2),
-        totalInterest: totalInterest.toFixed(2),
-        totalPaid: totalPaid.toFixed(2),
-        firstMonthPrincipal: firstMonthPrincipal.toFixed(2),
-        firstMonthInterest: firstMonthInterest.toFixed(2),
-        principal: principal.toFixed(2),
-        downPaymentPercent,
-        additionalCosts: (tax + insuranceCost + hoa).toFixed(2),
-        amortizationSchedule
-      }
-    });
+    const results = {
+      monthlyPayment: monthlyPayment.toFixed(2),
+      totalMonthlyPayment: totalMonthlyPayment.toFixed(2),
+      totalInterest: totalInterest.toFixed(2),
+      totalPaid: totalPaid.toFixed(2),
+      firstMonthPrincipal: firstMonthPrincipal.toFixed(2),
+      firstMonthInterest: firstMonthInterest.toFixed(2),
+      principal: principal.toFixed(2),
+      downPaymentPercent,
+      additionalCosts: (tax + insuranceCost + hoa).toFixed(2),
+      amortizationSchedule
+    };
+
+    // Track activity if user info provided (non-blocking)
+    if (username && email) {
+      UserActivity.create({
+        username: username.toLowerCase(),
+        email: email.toLowerCase(),
+        activityType: 'calculator',
+        data: {
+          input: { propertyPrice, downPayment, loanAmount, interestRate, loanTerm, propertyTax, insurance, hoaFees },
+          output: {
+            monthlyPayment: results.monthlyPayment,
+            totalMonthlyPayment: results.totalMonthlyPayment,
+            totalInterest: results.totalInterest,
+            principal: results.principal
+          }
+        }
+      }).catch(err => console.error('Activity tracking error:', err.message));
+    }
+
+    res.json({ success: true, results });
   } catch (error) {
     console.error('Calculation error:', error);
     res.status(500).json({ error: 'An error occurred during calculation', message: error.message });

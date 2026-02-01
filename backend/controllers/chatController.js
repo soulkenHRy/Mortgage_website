@@ -1,8 +1,9 @@
 const { chatWithGemini } = require('../services/aiService');
+const UserActivity = require('../models/UserActivity');
 
 exports.chatWithAI = async (req, res) => {
   try {
-    const { message, conversationHistory } = req.body;
+    const { message, conversationHistory, username, email } = req.body;
     
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ 
@@ -19,6 +20,20 @@ exports.chatWithAI = async (req, res) => {
     }
     
     const responseText = await chatWithGemini(message, conversationHistory);
+    
+    // Track chatbot activity if user info provided (non-blocking)
+    if (username && email) {
+      UserActivity.create({
+        username: username.toLowerCase(),
+        email: email.toLowerCase(),
+        activityType: 'chatbot',
+        data: {
+          userMessage: message,
+          aiResponse: responseText.substring(0, 500), // Store first 500 chars of response
+          conversationLength: conversationHistory ? conversationHistory.length : 0
+        }
+      }).catch(err => console.error('Chat activity tracking error:', err.message));
+    }
     
     res.json({
       success: true,
